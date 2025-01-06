@@ -6,6 +6,9 @@ interface IAdmin extends Document{
     email: String;
     passwordHash: String;
     role: String;
+    createdAt: Date;
+    updatedAt: Date;
+    passwordUpdatedAt: Date;
 }
 
 
@@ -13,7 +16,10 @@ const adminSchema = new mongoose.Schema<IAdmin>({
     name: {type: String , required: true },
     email: {type: String , required: true , unique: true},
     passwordHash: {type: String , required: true },
-    role: {type: String , required: true }
+    role: {type: String , required: true },
+    createdAt: {type: Date , default: Date.now },
+    updatedAt: {type: Date , default: Date.now},
+    passwordUpdatedAt: {type: Date}
 });
 
 interface IGuest extends Document {
