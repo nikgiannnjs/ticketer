@@ -5,6 +5,9 @@ import { checkRequiredFields } from '@/utils/checkRequiredFields';
 import { nameFormatter } from '@/utils/nameFormatter';
 import { validPasswordCheck } from '@/utils/validPasswordCheck';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotenv from "dotenv";
+dotenv.config();
 
 export const guestUserRegister = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -129,3 +132,64 @@ export const adminUserRegister = async (req: Request , res: Response): Promise<v
 
 
 }
+
+export const login = async (req: Request , res: Response): Promise<void> => {
+    try{
+        const requiredFields = ["email" , "password"];
+        const missingFields = await checkRequiredFields(req.body , requiredFields);
+        if(missingFields.length){
+            res.status(400).json({
+                message: `Request body fields missing: ${missingFields.join(", ")}`
+            });
+
+            return;
+        };
+
+        const email: string = req.body.email;
+        const password: string = req.body.password;
+
+        const userId = req.params.id;
+        const user = await Admin.findById(userId).select('+passwordHash');
+
+        if(!user){
+            res.status(400).json({
+                message: "Invalid user id."
+            });
+
+            return;
+        };
+
+        const validEmail = await Admin.findOne({email})
+
+        if (!validEmail){
+            res.status(400).json({
+                message: "Invalid email."
+            });
+
+            return;
+        };
+
+        const validPassword = await bcrypt.compare(password , user.passwordHash);
+
+        if(!validPassword){
+            res.status(400).json({
+                message: "Invalid password."
+            });
+
+            return;
+        };
+
+        const accessToken = jwt.sign({id: user._id} , process.env.JWT_SECRET as string , {expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string});
+        const resetToken = jwt.sign({id: user._id} , process.env.JWT_SECRET as string , {expiresIn: process.env.JWT_RESET_EXPIRES_IN as string});
+
+        res.status(200).json({
+            message: "Login successfull.",
+            accessToken: accessToken,
+            resetToken: resetToken
+        });
+
+    }catch(error){
+        res.status(500).json({ message: "An error occurred", error });
+        console.log(error);
+    };
+};

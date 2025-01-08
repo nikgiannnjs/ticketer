@@ -3,8 +3,8 @@ import {Document, Types, Schema} from 'mongoose';
 
 interface ITicket extends Document {
     venue: Types.ObjectId;
-    status: String;
-    qrImage: String;
+    status: string;
+    qrImage: string;
     price: Number;
     purchaseDate: Date;
     user: Types.ObjectId;

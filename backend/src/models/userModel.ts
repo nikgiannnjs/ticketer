@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 import Document from 'mongoose';
 
 interface IAdmin extends Document{
-    name: String;
-    email: String;
-    passwordHash: String;
-    role: String;
+    name: string;
+    email: string;
+    passwordHash: string;
+    role: string;
 }
 
 
@@ -17,7 +17,7 @@ const adminSchema = new mongoose.Schema<IAdmin>({
 });
 
 interface IGuest extends Document {
-    email: String
+    email: string
 }
 
 const guestSchema = new mongoose.Schema<IGuest>({
