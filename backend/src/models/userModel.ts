@@ -33,4 +33,4 @@ const guestSchema = new mongoose.Schema<IGuest>({
 const Admin = mongoose.model<IAdmin>('Admin' , adminSchema);
 const Guest = mongoose.model<IGuest>('Guest' , guestSchema);
 
-export {Admin, Guest};
+export {Admin , Guest};
