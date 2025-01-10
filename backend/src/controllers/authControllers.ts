@@ -65,10 +65,21 @@ export const adminUserRegister = async (
   res: Response
 ): Promise<void> => {
   try {
+    const userId = req.params.id;
+
+    const user = await Admin.findById(userId);
+
+    if (!user) {
+      res.status(400).json({
+        message: "User not found.",
+      });
+
+      return;
+    }
+
     const requiredFields = [
       "firstName",
       "lastName",
-      "email",
       "password",
       "passwordConfirm",
     ];
@@ -88,30 +99,10 @@ export const adminUserRegister = async (
     );
 
     const name: string = userName;
-    const email: string = req.body.email;
+    const email: string = user.email;
     const password: string = req.body.password;
     const passwordConfirm: string = req.body.passwordConfirm;
-
-    const validEmail = emailValidation(email);
-
-    if (!validEmail) {
-      res.status(400).json({
-        message:
-          "Invalid email format. Email has to be in the format of test@gmail.com",
-      });
-
-      return;
-    }
-
-    const existingAdmin = await Admin.findOne({ email });
-
-    if (existingAdmin) {
-      res.status(400).json({
-        message: "Email already registered.",
-      });
-
-      return;
-    }
+    const status: string = user.status;
 
     const validPassword = await validPasswordCheck(password);
 
@@ -134,13 +125,17 @@ export const adminUserRegister = async (
 
     const passwordEncryption = await bcrypt.hash(password, 10);
 
-    const data = new Admin({
-      name: name,
-      email: email,
-      passwordHash: passwordEncryption,
-    });
-
-    const newAdmin = await data.save({ validateBeforeSave: false });
+    await Admin.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          name: name,
+          email: email,
+          passwordHash: passwordEncryption,
+          status: status,
+        },
+      }
+    );
 
     res.status(201).json({ message: "New Admin registered successfully." });
   } catch (error) {
@@ -234,6 +229,16 @@ export const requestAccess = async (
 
     const email: string = req.body.email;
 
+    const existingEmail = await Admin.findOne({ email });
+
+    if (existingEmail) {
+      res.status(400).json({
+        message: "Access already requested with this email.",
+      });
+
+      return;
+    }
+
     const validEmail = emailValidation(email);
 
     if (!validEmail) {
@@ -279,11 +284,7 @@ export const acceptRequest = async (
     }
 
     if (user.status === "requested") {
-      const data = new Admin({
-        status: "active",
-      });
-
-      await data.save({ validateBeforeSave: false });
+      await Admin.updateOne({ _id: userId }, { $set: { status: "active" } });
 
       res.status(201).json({ message: "Status updated successfully." });
 
