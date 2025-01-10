@@ -11,7 +11,7 @@ dotenv.config();
 
 export const guestUserRegister = async (
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> => {
   try {
     const email: string = req.body.email;
@@ -62,7 +62,7 @@ export const guestUserRegister = async (
 
 export const adminUserRegister = async (
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> => {
   try {
     const requiredFields = [
@@ -84,7 +84,7 @@ export const adminUserRegister = async (
 
     const userName: string = await nameFormatter(
       req.body.firstName,
-      req.body.lastName,
+      req.body.lastName
     );
 
     const name: string = userName;
@@ -138,7 +138,6 @@ export const adminUserRegister = async (
       name: name,
       email: email,
       passwordHash: passwordEncryption,
-      role: "admin",
     });
 
     const newAdmin = await data.save();
@@ -199,12 +198,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const accessToken = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET as string,
-      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string },
+      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string }
     );
     const resetToken = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET as string,
-      { expiresIn: process.env.JWT_RESET_EXPIRES_IN as string },
+      { expiresIn: process.env.JWT_RESET_EXPIRES_IN as string }
     );
 
     res.status(200).json({
@@ -212,6 +211,84 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       accessToken: accessToken,
       resetToken: resetToken,
     });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const requestAccess = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const requiredFields = ["email"];
+    const missingFields = await checkRequiredFields(req.body, requiredFields);
+    if (missingFields.length) {
+      res.status(400).json({
+        message: `Request body fields missing: ${missingFields.join(", ")}`,
+      });
+
+      return;
+    }
+
+    const email: string = req.body.email;
+
+    const validEmail = emailValidation(email);
+
+    if (!validEmail) {
+      res.status(400).json({
+        message:
+          "Invalid email format. Email has to be in the format of test@gmail.com",
+      });
+
+      return;
+    }
+
+    const data = new Admin({
+      email: email,
+      status: "requested",
+    });
+
+    await data.save();
+
+    res.status(201).json({
+      message: "Request made successfully.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const acceptRequest = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.params.id;
+
+    const user = await Admin.findById(userId);
+
+    if (!user) {
+      res.status(400).json({
+        message: "User not found.",
+      });
+
+      return;
+    }
+
+    if (user.status === "requested") {
+      const data = new Admin({
+        status: "active",
+      });
+
+      await data.save({ validateBeforeSave: false });
+
+      res.status(201).json({ message: "Status updated successfully." });
+
+      return;
+    }
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);

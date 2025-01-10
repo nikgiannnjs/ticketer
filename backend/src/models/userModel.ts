@@ -5,14 +5,20 @@ interface IAdmin extends Document {
   name: string;
   email: string;
   passwordHash: string;
-  role: string;
+  status: string;
 }
 
 const adminSchema = new mongoose.Schema<IAdmin>({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-  role: { type: String, required: true },
+  name: { type: String, trim: true },
+  email: { type: String, required: true, unique: true, trim: true },
+  passwordHash: { type: String, select: false },
+  status: {
+    type: String,
+    enum: ["default", "requested", "active"],
+    required: true,
+    default: "default",
+    trim: true,
+  },
 });
 
 interface IGuest extends Document {
@@ -20,7 +26,7 @@ interface IGuest extends Document {
 }
 
 const guestSchema = new mongoose.Schema<IGuest>({
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true, trim: true },
 });
 
 const Admin = mongoose.model<IAdmin>("Admin", adminSchema);
