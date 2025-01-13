@@ -13,7 +13,7 @@ interface IAdmin extends Document {
 
 const adminSchema = new mongoose.Schema<IAdmin>({
   name: { type: String, trim: true },
-  email: { type: String, required: true, unique: true, trim: true },
+  email: { type: String, required: true, trim: true },
   passwordHash: { type: String, select: false },
   status: {
     type: String,

@@ -7,10 +7,11 @@ import {
   requestAccess,
   acceptRequest,
 } from "@/controllers/authControllers";
+import { adminCheck } from "@/middleware/adminAccessOnly";
 
 router.post("/guestRegister", guestUserRegister);
-router.post("/adminRegister", adminUserRegister);
-router.post("/login/:id", login);
+router.post("/adminRegister/:id", adminCheck, adminUserRegister);
+router.post("/login/:id", adminCheck, login);
 router.post("/requestAccess", requestAccess);
 router.post("/acceptRequest/:id", acceptRequest);
 
