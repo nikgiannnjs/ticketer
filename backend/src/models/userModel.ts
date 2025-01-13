@@ -1,11 +1,14 @@
 import mongoose from "mongoose";
-import Document from "mongoose";
+import type Document from "mongoose";
 
 interface IAdmin extends Document {
   name: string;
   email: string;
   passwordHash: string;
   status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  passwordUpdatedAt: Date;
 }
 
 const adminSchema = new mongoose.Schema<IAdmin>({
@@ -19,6 +22,9 @@ const adminSchema = new mongoose.Schema<IAdmin>({
     default: "default",
     trim: true,
   },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  passwordUpdatedAt: { type: Date },
 });
 
 interface IGuest extends Document {
@@ -32,4 +38,4 @@ const guestSchema = new mongoose.Schema<IGuest>({
 const Admin = mongoose.model<IAdmin>("Admin", adminSchema);
 const Guest = mongoose.model<IGuest>("Guest", guestSchema);
 
-export { Admin, Guest, IAdmin, IGuest };
+export { Admin, Guest, type IAdmin, type IGuest };
