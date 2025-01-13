@@ -140,7 +140,7 @@ export const adminUserRegister = async (
       passwordHash: passwordEncryption,
     });
 
-    const newAdmin = await data.save();
+    const newAdmin = await data.save({ validateBeforeSave: false });
 
     res.status(201).json({ message: "New Admin registered successfully." });
   } catch (error) {
