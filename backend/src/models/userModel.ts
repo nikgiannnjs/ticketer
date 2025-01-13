@@ -17,7 +17,7 @@ const adminSchema = new mongoose.Schema<IAdmin>({
   passwordHash: { type: String, select: false },
   status: {
     type: String,
-    enum: ["default", "requested", "active"],
+    enum: ["default", "requested", "active", "super-admin"],
     required: true,
     default: "default",
     trim: true,
