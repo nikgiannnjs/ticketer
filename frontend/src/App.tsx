@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
+
 function App() {
   const [message, setMessage] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -21,10 +23,10 @@ function App() {
   }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>MVP Test</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold">MVP Test</h1>
       {error ? (
-        <p style={{ color: 'red' }}>{error}</p>
+        <p className="text-red-500">{error}</p>
       ) : (
         <p>{message || 'Loading...'}</p>
       )}
