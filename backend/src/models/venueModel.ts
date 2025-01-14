@@ -7,7 +7,8 @@ interface IVenue extends Document {
   country: string;
   city: string;
   address: string;
-  datetime: Date;
+  date: string;
+  time: string;
   price: number;
   capacity: number;
   createdAt: Date;
@@ -23,7 +24,8 @@ const venueSchema = new mongoose.Schema<IVenue>({
   country: { type: String, required: true },
   city: { type: String, required: true },
   address: { type: String, required: true },
-  datetime: { type: Date, required: true },
+  date: { type: String, required: true },
+  time: { type: String, required: true },
   price: { type: Number, required: true },
   capacity: { type: Number, required: true },
   image: { type: String, required: true },
