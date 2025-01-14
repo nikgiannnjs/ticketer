@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const validToken = async (
+export const validTokenCheck = async (
   req: Request,
   res: Response,
   next: NextFunction
