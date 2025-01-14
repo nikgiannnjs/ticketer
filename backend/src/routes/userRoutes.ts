@@ -17,5 +17,5 @@ router.post("/adminRegister/:id", adminCheck, adminUserRegister);
 router.post("/login/:id", adminCheck, login);
 router.post("/requestAccess", requestAccess);
 router.post("/acceptRequest/:id", superAdminCheck, acceptRequest);
-router.post("/logout", validTokenCheck, logout);
+router.post("/logout/:id", adminCheck, validTokenCheck, logout);
 export default router;
