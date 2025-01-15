@@ -13,8 +13,7 @@ export const validTokenCheck = async (
 
     if (!bearerToken) {
       res.status(400).json({
-        message:
-          "No token provided. Please provide a bearer authorization token.",
+        message: "No token provided.",
       });
 
       return;
