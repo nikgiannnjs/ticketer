@@ -13,8 +13,7 @@ export const validTokenCheck = async (
 
     if (!bearerToken) {
       res.status(400).json({
-        message:
-          "No token provided. Please provide a bearer authorization token.",
+        message: "No token provided.",
       });
 
       return;
@@ -22,6 +21,7 @@ export const validTokenCheck = async (
 
     const token = bearerToken.split(" ")[1];
 
+<<<<<<< HEAD
     try {
       const tokenCheck = jwt.verify(token, process.env.JWT_SECRET as string);
       next();
@@ -30,6 +30,12 @@ export const validTokenCheck = async (
         res.status(400).json({
           message: "Invalid token.",
         });
+=======
+    if (!tokenCheck) {
+      res.status(400).json({
+        message: "User not authorized.",
+      });
+>>>>>>> logout-endpoint
 
         return;
       }

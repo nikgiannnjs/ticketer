@@ -303,8 +303,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
 
     if (!bearerToken) {
       res.status(400).json({
-        message:
-          "No token provided. Please provide a bearer authorization token.",
+        message: "No token provided.",
       });
 
       return;
