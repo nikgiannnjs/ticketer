@@ -21,7 +21,6 @@ export const validTokenCheck = async (
 
     const token = bearerToken.split(" ")[1];
 
-<<<<<<< HEAD
     try {
       const tokenCheck = jwt.verify(token, process.env.JWT_SECRET as string);
       next();
@@ -30,15 +29,9 @@ export const validTokenCheck = async (
         res.status(400).json({
           message: "Invalid token.",
         });
-=======
-    if (!tokenCheck) {
-      res.status(400).json({
-        message: "User not authorized.",
-      });
->>>>>>> logout-endpoint
-
-        return;
       }
+
+      return;
     }
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
