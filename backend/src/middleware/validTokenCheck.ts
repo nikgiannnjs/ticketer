@@ -24,7 +24,7 @@ export const validTokenCheck = async (
 
     if (!tokenCheck) {
       res.status(400).json({
-        message: "Invalid token.",
+        message: "User not authorized.",
       });
 
       return;
