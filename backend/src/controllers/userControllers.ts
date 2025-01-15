@@ -67,3 +67,14 @@ export const createNewVenue = async (
     console.log(error);
   }
 };
+
+export const updateVenue = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
