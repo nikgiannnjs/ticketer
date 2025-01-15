@@ -21,7 +21,6 @@ export const createNewVenue = async (
       "price",
       "capacity",
       "image",
-      "admin",
     ];
     const missingFields = await checkRequiredFields(req.body, requiredFields);
     if (missingFields.length) {
@@ -32,17 +31,37 @@ export const createNewVenue = async (
       return;
     }
 
-    const title = formatter(req.body.title);
-    const description = formatter(req.body.description);
-    const country = formatter(req.body.country);
-    const city = formatter(req.body.city);
+    const title = await formatter(req.body.title);
+    const description = await formatter(req.body.description);
+    const country = await formatter(req.body.country);
+    const city = await formatter(req.body.city);
     const address = req.body.address;
     const date = req.body.date;
     const time = req.body.time;
     const price = req.body.price;
     const capacity = req.body.capacity;
     const image = req.body.image;
-    const admin = req.body.admin;
+    const admin = req.params.id;
+
+    const data = new Venue({
+      title: title,
+      description: description,
+      country: country,
+      city: city,
+      address: address,
+      date: date,
+      time: time,
+      price: price,
+      capacity: capacity,
+      image: image,
+      admin: admin,
+    });
+
+    const newVenue = await data.save();
+
+    res.status(201).json({
+      message: "Venue created successfully.",
+    });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
