@@ -29,6 +29,7 @@ export function useLogin() {
     {
       onSuccess: (data) => {
         setSession(data);
+        // TODO: redirect to create event page
       },
       onError: (e) => {
         if (isAxiosError(e)) {
