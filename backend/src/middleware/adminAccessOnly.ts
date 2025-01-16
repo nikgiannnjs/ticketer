@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Admin } from "@/models/userModel";
+import { checkRequiredFields } from "@/utils/checkRequiredFields";
 
 export const adminCheck = async (
   req: Request,
@@ -7,9 +8,20 @@ export const adminCheck = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const requiredFields = ["email"];
+    const missingFields = await checkRequiredFields(req.body, requiredFields);
 
-    const user = await Admin.findById(userId);
+    if (missingFields.length) {
+      res.status(400).json({
+        message: `Request body fields missing: ${missingFields.join(", ")}`,
+      });
+
+      return;
+    }
+
+    const email = req.body.email;
+
+    const user = await Admin.findOne({ email });
 
     if (!user) {
       res.status(404).json({

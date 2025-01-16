@@ -66,21 +66,10 @@ export const adminUserRegister = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.params.id;
-
-    const user = await Admin.findById(userId);
-
-    if (!user) {
-      res.status(400).json({
-        message: "User not found.",
-      });
-
-      return;
-    }
-
     const requiredFields = [
       "firstName",
       "lastName",
+      "email",
       "password",
       "passwordConfirm",
     ];
@@ -100,9 +89,20 @@ export const adminUserRegister = async (
     );
 
     const name: string = userName;
-    const email: string = user.email;
+    const email: string = req.body.email;
     const password: string = req.body.password;
     const passwordConfirm: string = req.body.passwordConfirm;
+
+    const user = await Admin.findOne({ email });
+
+    if (!user) {
+      res.status(400).json({
+        message: "User not found.",
+      });
+
+      return;
+    }
+
     const status: string = user.status;
 
     const validPassword = await validPasswordCheck(password);
@@ -127,7 +127,7 @@ export const adminUserRegister = async (
     const passwordEncryption = await bcrypt.hash(password, 10);
 
     await Admin.updateOne(
-      { _id: userId },
+      { email: email },
       {
         $set: {
           name: name,
@@ -149,6 +149,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const requiredFields = ["email", "password"];
     const missingFields = await checkRequiredFields(req.body, requiredFields);
+
     if (missingFields.length) {
       res.status(400).json({
         message: `Request body fields missing: ${missingFields.join(", ")}`,
@@ -160,22 +161,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const email: string = req.body.email;
     const password: string = req.body.password;
 
-    const userId = req.params.id;
-    const user = await Admin.findById(userId).select("+passwordHash");
+    const user = await Admin.findOne({ email }).select("+passwordHash");
 
     if (!user) {
       res.status(400).json({
-        message: "Invalid user id.",
-      });
-
-      return;
-    }
-
-    const validEmail = await Admin.findOne({ email });
-
-    if (!validEmail) {
-      res.status(400).json({
-        message: "Invalid email.",
+        message: "User not found.",
       });
 
       return;
@@ -272,9 +262,17 @@ export const acceptRequest = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const email = req.body.email;
 
-    const user = await Admin.findById(userId);
+    if (!email) {
+      res.status(400).json({
+        message: "Email required.",
+      });
+
+      return;
+    }
+
+    const user = await Admin.findOne({ email });
 
     if (!user) {
       res.status(400).json({
@@ -285,7 +283,7 @@ export const acceptRequest = async (
     }
 
     if (user.status === "requested") {
-      await Admin.updateOne({ _id: userId }, { $set: { status: "active" } });
+      await Admin.updateOne({ email: email }, { $set: { status: "active" } });
 
       res.status(201).json({ message: "Status updated successfully." });
 
