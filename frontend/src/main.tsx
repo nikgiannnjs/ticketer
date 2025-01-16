@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -20,7 +20,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/",
-        element: <Events />,
+        element: <Navigate to="/events" replace />,
       },
     ],
   },
