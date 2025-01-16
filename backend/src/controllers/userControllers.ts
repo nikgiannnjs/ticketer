@@ -22,6 +22,7 @@ export const createNewVenue = async (
       "capacity",
       "image",
     ];
+
     const missingFields = await checkRequiredFields(req.body, requiredFields);
     if (missingFields.length) {
       res.status(400).json({
