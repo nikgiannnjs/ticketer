@@ -165,7 +165,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     if (!user) {
       res.status(400).json({
-        message: "User not found.",
+        message: "Password or email is incorrect.",
+        code: "A152"
       });
 
       return;
@@ -175,7 +176,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     if (!validPassword) {
       res.status(400).json({
-        message: "Invalid password.",
+        message: "Password or email is incorrect.",
+        code: "A154"
       });
 
       return;
