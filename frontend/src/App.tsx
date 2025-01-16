@@ -1,37 +1,26 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
+import { QueryClient, QueryClientProvider } from "react-query";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Outlet } from "react-router";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL;
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
-  const [message, setMessage] = useState<string>('');
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    const fetchMessage = async () => {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/hello`);
-        const data = await response.json();
-        setMessage(data.message);
-      } catch (err) {
-        setError('Failed to fetch message');
-        console.error('Error:', err);
-      }
-    };
-
-    fetchMessage();
-  }, []);
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">MVP Test</h1>
-      {error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        <p>{message || 'Loading...'}</p>
-      )}
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <div className="p-8 flex justify-center items-center h-screen">
+          <Outlet />
+        </div>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
-export default App; 
+export default App;
