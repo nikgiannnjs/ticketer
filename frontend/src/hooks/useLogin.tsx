@@ -1,6 +1,8 @@
 import { useMutation } from "react-query";
 import { axios } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-hot-toast";
+import { isAxiosError } from "axios";
 
 export type LoginCredentials = {
   email: string;
@@ -27,6 +29,21 @@ export function useLogin() {
     {
       onSuccess: (data) => {
         setSession(data);
+      },
+      onError: (e) => {
+        if (isAxiosError(e)) {
+          switch (e.response?.data.code) {
+            case "A152":
+              toast.error("User not found.");
+              break;
+            case "A154":
+              toast.error("Password or email is incorrect.");
+              break;
+            default:
+              toast.error(e.response?.data.message);
+              break;
+          }
+        } 
       },
     }
   );
