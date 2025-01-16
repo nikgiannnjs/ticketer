@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Guest, Admin } from "@/models/userModel";
+import BlackList from "@/models/tokenBlackListModel";
 import { emailValidation } from "@/utils/emailValidation";
 import { checkRequiredFields } from "@/utils/checkRequiredFields";
 import { nameFormatter } from "@/utils/nameFormatter";
@@ -288,6 +289,32 @@ export const acceptRequest = async (
 
       return;
     }
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const bearerToken = req.headers.authorization;
+
+    if (!bearerToken) {
+      res.status(400).json({
+        message: "No token provided.",
+      });
+
+      return;
+    }
+
+    const token = bearerToken.split(" ")[1];
+
+    const newBlackListedToken = new BlackList({ token });
+    await newBlackListedToken.save();
+
+    res.status(200).json({
+      message: "Logout successfull.",
+    });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
