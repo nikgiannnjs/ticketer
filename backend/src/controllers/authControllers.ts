@@ -166,7 +166,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!user) {
       res.status(400).json({
         message: "Password or email is incorrect.",
-        code: "A152"
+        code: "A152",
       });
 
       return;
@@ -177,27 +177,27 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!validPassword) {
       res.status(400).json({
         message: "Password or email is incorrect.",
-        code: "A154"
+        code: "A154",
       });
 
       return;
     }
 
     const accessToken = jwt.sign(
-      { id: user._id },
+      { id: email },
       process.env.JWT_SECRET as string,
       { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string }
     );
-    const resetToken = jwt.sign(
-      { id: user._id },
+    const refreshToken = jwt.sign(
+      { id: email },
       process.env.JWT_SECRET as string,
-      { expiresIn: process.env.JWT_RESET_EXPIRES_IN as string }
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string }
     );
 
     res.status(200).json({
       message: "Login successfull.",
       accessToken: accessToken,
-      resetToken: resetToken,
+      resetToken: refreshToken,
     });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
