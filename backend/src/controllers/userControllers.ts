@@ -2,7 +2,9 @@ import { Request, Response } from "express";
 import Venue from "@/models/venueModel";
 import { checkRequiredFields } from "@/utils/checkRequiredFields";
 import { dateTimeFormatCheck } from "@/utils/dateTimeformatCheck";
+import { uploadImageToR2 } from "@/utils/uploadImageToCloud";
 import { localTimeZone } from "@/utils/localTimeZone";
+import { decoder } from "@/utils/decodeImage";
 import { formatter } from "@/utils/formatter";
 import { Admin } from "@/models/userModel";
 import dotenv from "dotenv";
@@ -65,6 +67,10 @@ export const createNewVenue = async (
       return;
     }
 
+    const bufferImg: Buffer = await decoder(image);
+    const fileName = `venue_image_${Date.now()}.png`;
+    const imageUrl = await uploadImageToR2(bufferImg, fileName);
+
     const data = new Venue({
       title: title,
       description: description,
@@ -74,7 +80,7 @@ export const createNewVenue = async (
       datetime: dateTime,
       price: price,
       capacity: capacity,
-      image: image,
+      image: imageUrl,
       admin: admin._id,
     });
 
