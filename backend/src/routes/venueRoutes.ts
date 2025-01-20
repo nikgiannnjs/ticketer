@@ -5,6 +5,6 @@ import { validTokenCheck } from "@/middleware/validTokenCheck";
 
 const router = Router();
 
-router.post("/createNewVenue/:id", adminCheck, validTokenCheck, createNewVenue);
+router.post("/createNewVenue", validTokenCheck, createNewVenue);
 
 export default router;
