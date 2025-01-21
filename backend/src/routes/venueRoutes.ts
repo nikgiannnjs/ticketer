@@ -6,6 +6,6 @@ import { validTokenCheck } from "@/middleware/validTokenCheck";
 const router = Router();
 
 router.post("/createNewVenue", validTokenCheck, createNewVenue);
-router.post("/signedUrls", signedUrls);
+router.post("/signedUrls", validTokenCheck, signedUrls);
 
 export default router;
