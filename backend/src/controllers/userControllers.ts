@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
+import { randomBytes } from "crypto";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Venue from "@/models/venueModel";
 import { checkRequiredFields } from "@/utils/checkRequiredFields";
 import { dateTimeFormatCheck } from "@/utils/dateTimeformatCheck";
 import { localTimeZone } from "@/utils/localTimeZone";
 import { formatter } from "@/utils/formatter";
 import { Admin } from "@/models/userModel";
+import { s3Client } from "@/db/s3Client";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -83,6 +87,46 @@ export const createNewVenue = async (
     res.status(201).json({
       message: "Venue created successfully.",
     });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const signedUrls = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    dotenv.config();
+
+    const BUCKET_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL;
+    const BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET_NAME;
+    const FIVE_MB = 5 * 1024 * 1024;
+
+    const imageSize = req.body.imageSize;
+
+    if (imageSize > FIVE_MB) {
+      res.status(400).json({ error: "File size too large" });
+
+      return;
+    }
+
+    const bucketKey = randomBytes(16).toString("hex");
+
+    const signedUrl = await getSignedUrl(
+      s3Client,
+      new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: bucketKey,
+        ContentLength: imageSize,
+      }),
+      { expiresIn: 30 }
+    );
+
+    const publicUrl = `${BUCKET_PUBLIC_URL}/${bucketKey}`;
+
+    res.status(200).json({ signedUrl, publicUrl });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
