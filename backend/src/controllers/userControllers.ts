@@ -56,6 +56,7 @@ export const createNewVenue = async (
     const dateTime = new Date(req.body.dateTime);
     const price = req.body.price;
     const capacity = req.body.capacity;
+    const ticketsBooked = 0;
     const image = req.body.image;
     const bearerToken = req.headers.authorization;
 
@@ -86,6 +87,7 @@ export const createNewVenue = async (
       datetime: dateTime,
       price: price,
       capacity: capacity,
+      ticketsBooked: ticketsBooked,
       image: image,
       admin: admin._id,
     });
