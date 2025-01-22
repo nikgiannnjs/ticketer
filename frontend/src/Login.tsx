@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { useLogin } from "@/hooks/useLogin";
+import { Link } from "react-router";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -70,6 +71,12 @@ export default function LoginForm() {
           </Button>
         </CardFooter>
       </form>
+      <CardFooter className="flex justify-center gap-1">
+        <p className="text-sm text-muted-foreground">Don't have an account? </p>
+        <Button variant="link" className="p-0">
+          <Link to="/register">Register</Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

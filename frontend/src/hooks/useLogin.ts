@@ -35,7 +35,7 @@ export function useLogin() {
         if (isAxiosError(e)) {
           switch (e.response?.data.code) {
             case "A152":
-              toast.error("User not found.");
+              toast.error("Password or email is incorrect.");
               break;
             case "A154":
               toast.error("Password or email is incorrect.");

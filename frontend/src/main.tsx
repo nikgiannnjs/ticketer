@@ -4,6 +4,9 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import Login from "./Login";
 import Events from "./pages/Events";
+import CreateEvent from "./pages/CreateEvent";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import Register from "./pages/Register";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +20,18 @@ const router = createBrowserRouter([
       {
         path: "events",
         element: <Events />,
+      },
+      {
+        path: "create-event",
+        element: (
+          <ProtectedRoute>
+            <CreateEvent />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "register",
+        element: <Register />,
       },
       {
         path: "/",
