@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Admin } from "@/models/userModel";
-import { checkRequiredFields } from "@/utils/checkRequiredFields";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export const adminCheck = async (
   req: Request,
@@ -8,18 +8,15 @@ export const adminCheck = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const requiredFields = ["email"];
-    const missingFields = await checkRequiredFields(req.body, requiredFields);
+    const bearerToken = req.headers.authorization;
 
-    if (missingFields.length) {
-      res.status(400).json({
-        message: `Request body fields missing: ${missingFields.join(", ")}`,
-      });
+    const splitToken = bearerToken?.split(" ")[1] ?? "";
 
-      return;
-    }
-
-    const email = req.body.email;
+    const token = jwt.verify(
+      splitToken,
+      process.env.JWT_SECRET as string
+    ) as JwtPayload;
+    const email = token.email;
 
     const user = await Admin.findOne({ email });
 

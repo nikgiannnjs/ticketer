@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { randomBytes } from "crypto";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Venue from "@/models/venueModel";
@@ -18,7 +19,6 @@ export const createNewVenue = async (
 ): Promise<void> => {
   try {
     const requiredFields = [
-      "email",
       "title",
       "description",
       "country",
@@ -48,7 +48,6 @@ export const createNewVenue = async (
       return;
     }
 
-    const email = req.body.email;
     const title = await formatter(req.body.title);
     const description = await formatter(req.body.description);
     const country = await formatter(req.body.country);
@@ -58,6 +57,15 @@ export const createNewVenue = async (
     const price = req.body.price;
     const capacity = req.body.capacity;
     const image = req.body.image;
+    const bearerToken = req.headers.authorization;
+
+    const splitToken = bearerToken?.split(" ")[1] ?? "";
+
+    const token = jwt.verify(
+      splitToken,
+      process.env.JWT_SECRET as string
+    ) as JwtPayload;
+    const email = token.email;
 
     const admin = await Admin.findOne({ email });
 
@@ -112,7 +120,7 @@ export const signedUrls = async (
       return;
     }
 
-    const bucketKey = randomBytes(16).toString("hex");
+    const bucketKey = `events/${randomBytes(16).toString("hex")}`;
 
     const signedUrl = await getSignedUrl(
       s3Client,
