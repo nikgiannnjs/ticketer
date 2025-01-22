@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { LoginResponse } from "@/hooks/useLogin";
 import { jwtDecode } from "jwt-decode";
@@ -20,7 +20,12 @@ const getExpirationDate = (token: string) => {
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const accessToken = Cookies.get("accessToken") || null;
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = Cookies.get("accessToken");
+    setAccessToken(token || null);
+  }, []);
 
   const setSession = (data: LoginResponse) => {
     const accessTokenExp = getExpirationDate(data.accessToken);
@@ -32,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         secure: true,
         sameSite: "strict",
       });
+      setAccessToken(data.accessToken);
     }
 
     if (resetTokenExp) {
@@ -46,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearSession = () => {
     Cookies.remove("accessToken");
     Cookies.remove("resetToken");
+    setAccessToken(null);
   };
 
   return (
