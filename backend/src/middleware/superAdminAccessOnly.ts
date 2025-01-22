@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Admin } from "@/models/userModel";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export const superAdminCheck = async (
   req: Request,
@@ -7,9 +8,17 @@ export const superAdminCheck = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.params.id;
+    const bearerToken = req.headers.authorization;
 
-    const user = await Admin.findById(userId);
+    const splitToken = bearerToken?.split(" ")[1] ?? "";
+
+    const token = jwt.verify(
+      splitToken,
+      process.env.JWT_SECRET as string
+    ) as JwtPayload;
+    const email = token.email;
+
+    const user = await Admin.findOne({ email });
 
     if (!user) {
       res.status(404).json({
