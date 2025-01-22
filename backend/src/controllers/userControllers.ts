@@ -140,3 +140,23 @@ export const signedUrls = async (
     console.log(error);
   }
 };
+
+export const allVenues = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const page = Number(req.query.page) ?? 1;
+    const limit = Number(req.query.limit) ?? 10;
+
+    const offset = (page - 1) * limit;
+
+    const allVenues = await Venue.find()
+      .sort({ createdAt: 1 })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+
+    res.status(200).json(allVenues);
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
