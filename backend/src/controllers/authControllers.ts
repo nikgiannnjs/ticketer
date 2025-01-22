@@ -103,6 +103,14 @@ export const adminUserRegister = async (
       return;
     }
 
+    if (user.status !== "active") {
+      res.status(400).json({
+        message: "Access denied.",
+      });
+
+      return;
+    }
+
     const status: string = user.status;
 
     const validPassword = await validPasswordCheck(password);

@@ -154,7 +154,14 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
       .limit(limit)
       .exec();
 
-    res.status(200).json(allVenues);
+    const totalVenuesNumber = await Venue.countDocuments();
+
+    const totalPages = Math.ceil(totalVenuesNumber / limit);
+
+    res.status(200).json({
+      venues: allVenues,
+      totalPages: totalPages,
+    });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);

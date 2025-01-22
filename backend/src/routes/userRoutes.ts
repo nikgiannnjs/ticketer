@@ -13,7 +13,7 @@ import { superAdminCheck } from "@/middleware/superAdminAccessOnly";
 import { validTokenCheck } from "@/middleware/validTokenCheck";
 
 router.post("/guestRegister", guestUserRegister);
-router.post("/adminRegister", adminCheck, adminUserRegister);
+router.post("/adminRegister", adminUserRegister);
 router.post("/login", login);
 router.post("/requestAccess", requestAccess);
 router.post("/acceptRequest", superAdminCheck, acceptRequest);
