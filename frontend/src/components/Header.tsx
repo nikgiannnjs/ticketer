@@ -4,8 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/Button";
 import { LogOut } from "lucide-react";
 import { useLogout } from "@/hooks/useLogout";
-import { jwtDecode } from "jwt-decode";
-import { CustomJwtPayload } from "@/types/auth";
 
 const NavItem = ({
   to,
@@ -30,7 +28,7 @@ export function Header() {
   const { mutate: logout, isLoading } = useLogout();
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-background border-b">
+    <header className="fixed top-0 left-0 right-0 bg-background border-b z-50">
       <div className="container mx-auto px-4">
         <div className="h-16 flex items-center justify-between">
           <Link
