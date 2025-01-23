@@ -191,7 +191,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const accessToken = jwt.sign({ email }, process.env.JWT_SECRET as string, {
+    const accessToken = jwt.sign({ email , isSuperAdmin: user.status === "super-admin" }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
     });
     const refreshToken = jwt.sign({ email }, process.env.JWT_SECRET as string, {
@@ -261,6 +261,23 @@ export const requestAccess = async (
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
   }
+};
+
+export const getAccessRequests = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  const accessRequests = await Admin.find({ status: "requested" }) ?? [];
+  res.status(200).json({ accessRequests });
+};
+
+export const rejectRequest = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const email = req.body.email;
+  await Admin.deleteOne({ email: email });
+  res.status(200).json({ message: "Request rejected successfully." });
 };
 
 export const acceptRequest = async (

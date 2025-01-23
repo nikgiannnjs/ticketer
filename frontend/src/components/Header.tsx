@@ -4,6 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/Button";
 import { LogOut } from "lucide-react";
 import { useLogout } from "@/hooks/useLogout";
+import { jwtDecode } from "jwt-decode";
+import { CustomJwtPayload } from "@/types/auth";
 
 const NavItem = ({
   to,
@@ -24,7 +26,7 @@ const NavItem = ({
 };
 
 export function Header() {
-  const { accessToken } = useAuth();
+  const { accessToken, isSuperAdmin } = useAuth();
   const { mutate: logout, isLoading } = useLogout();
 
   return (
@@ -44,6 +46,9 @@ export function Header() {
 
               {!!accessToken && (
                 <NavItem to="/create-event">Create Event</NavItem>
+              )}
+              {isSuperAdmin && (
+                <NavItem to="/access-requests">Access Requests</NavItem>
               )}
               {!!accessToken ? (
                 <Button 

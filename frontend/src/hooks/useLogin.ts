@@ -3,6 +3,8 @@ import { axios } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-hot-toast";
 import { isAxiosError } from "axios";
+import { useNavigate } from "react-router";
+import { jwtDecode } from "jwt-decode";
 
 export type LoginCredentials = {
   email: string;
@@ -17,6 +19,7 @@ export type LoginResponse = {
 
 export function useLogin() {
   const { setSession } = useAuth();
+  const navigate = useNavigate();
 
   return useMutation<LoginResponse, Error, LoginCredentials>(
     async (credentials) => {
@@ -29,7 +32,13 @@ export function useLogin() {
     {
       onSuccess: (data) => {
         setSession(data);
-        // TODO: redirect to create event page
+        const decoded = jwtDecode(data.accessToken);
+
+        if (decoded.isSuperAdmin) {
+          navigate("/access-requests");
+        } else {
+          navigate("/create-event");
+        }
       },
       onError: (e) => {
         if (isAxiosError(e)) {

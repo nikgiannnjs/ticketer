@@ -7,6 +7,8 @@ interface AuthContextType {
   accessToken: string | null;
   setSession: (data: LoginResponse) => void;
   clearSession: () => void;
+  isSuperAdmin?: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,10 +23,34 @@ const getExpirationDate = (token: string) => {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | undefined>();
+  
   useEffect(() => {
-    const token = Cookies.get("accessToken");
-    setAccessToken(token || null);
+    const initializeAuth = () => {
+      const token = Cookies.get("accessToken");
+      
+      if (token) {
+        try {
+          const expDate = getExpirationDate(token);
+          if (expDate && expDate > new Date()) {
+            setAccessToken(token);
+            const decoded = jwtDecode(token);
+            setIsSuperAdmin(!!decoded.isSuperAdmin);
+          } else {
+            Cookies.remove("accessToken");
+            Cookies.remove("resetToken");
+          }
+        } catch (error) {
+          Cookies.remove("accessToken");
+          Cookies.remove("resetToken");
+        }
+      }
+      
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const setSession = (data: LoginResponse) => {
@@ -38,6 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sameSite: "strict",
       });
       setAccessToken(data.accessToken);
+      const decoded = jwtDecode(data.accessToken);
+      setIsSuperAdmin(!!decoded.isSuperAdmin);
     }
 
     if (resetTokenExp) {
@@ -53,10 +81,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     Cookies.remove("accessToken");
     Cookies.remove("resetToken");
     setAccessToken(null);
+    setIsSuperAdmin(undefined);
   };
 
+  if (isLoading) {
+    return null;
+  }
+
   return (
-    <AuthContext.Provider value={{ accessToken, setSession, clearSession }}>
+    <AuthContext.Provider value={{ accessToken, setSession, clearSession, isSuperAdmin, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

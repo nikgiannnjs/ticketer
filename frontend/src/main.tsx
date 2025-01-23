@@ -7,6 +7,8 @@ import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Register from "./pages/Register";
+import AccessRequests from "@/pages/AccessRequests";
+import { SuperAdminRoute } from "@/components/SuperAdminRoute";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +38,14 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Navigate to="/events" replace />,
+      },
+      {
+        path: "/access-requests",
+        element: (
+          <SuperAdminRoute>
+            <AccessRequests />
+          </SuperAdminRoute>
+        ),
       },
     ],
   },
