@@ -95,6 +95,7 @@ export default function Register() {
               />
             </div>
           </CardContent>
+          </form>
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" isLoading={isLoading}>
               Register
@@ -144,7 +145,6 @@ export default function Register() {
               </ModalContent>
             </Modal>
           </CardFooter>
-        </form>
       </Card>
     </>
   );
