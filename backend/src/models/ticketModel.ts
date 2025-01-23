@@ -7,8 +7,8 @@ interface ITicket extends Document {
   qrImage: string;
   price: Number;
   purchaseDate: Date;
-  user: Types.ObjectId;
-  createdAt: Date;
+  user: string;
+  email: string;
 }
 
 const ticketSchema = new mongoose.Schema<ITicket>({
@@ -21,8 +21,8 @@ const ticketSchema = new mongoose.Schema<ITicket>({
   qrImage: { type: String },
   price: { type: Number, required: true },
   purchaseDate: { type: Date },
-  user: { type: Schema.Types.ObjectId, ref: "Guest" },
-  createdAt: { type: Date },
+  user: { type: String, required: true },
+  email: { type: String, required: true, trime: true },
 });
 
 const Ticket = mongoose.model<ITicket>("Ticket", ticketSchema);
