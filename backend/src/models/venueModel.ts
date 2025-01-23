@@ -10,6 +10,7 @@ interface IVenue extends Document {
   datetime: Date;
   price: number;
   capacity: number;
+  ticketsBooked: number;
   createdAt: Date;
   updatedAt: Date;
   image: string;
@@ -26,6 +27,7 @@ const venueSchema = new mongoose.Schema<IVenue>({
   datetime: { type: Date, required: true, trim: true },
   price: { type: Number, required: true },
   capacity: { type: Number, required: true },
+  ticketsBooked: { type: Number, required: true },
   image: { type: String, required: true, trim: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

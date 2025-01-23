@@ -56,6 +56,7 @@ export const createNewVenue = async (
     const dateTime = new Date(req.body.dateTime);
     const price = req.body.price;
     const capacity = req.body.capacity;
+    const ticketsBooked = 0;
     const image = req.body.image;
     const bearerToken = req.headers.authorization;
 
@@ -86,6 +87,7 @@ export const createNewVenue = async (
       datetime: dateTime,
       price: price,
       capacity: capacity,
+      ticketsBooked: ticketsBooked,
       image: image,
       admin: admin._id,
     });
@@ -135,6 +137,33 @@ export const signedUrls = async (
     const publicUrl = `${BUCKET_PUBLIC_URL}/${bucketKey}`;
 
     res.status(200).json({ signedUrl, publicUrl });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const allVenues = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const page = Number(req.query.page) ?? 1;
+    const limit = Number(req.query.limit) ?? 10;
+
+    const offset = (page - 1) * limit;
+
+    const allVenues = await Venue.find()
+      .sort({ createdAt: 1 })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+
+    const totalVenuesNumber = await Venue.countDocuments();
+
+    const totalPages = Math.ceil(totalVenuesNumber / limit);
+
+    res.status(200).json({
+      venues: allVenues,
+      totalPages: totalPages,
+    });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
