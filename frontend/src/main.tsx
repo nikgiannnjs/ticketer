@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 import AccessRequests from "@/pages/AccessRequests";
 import { SuperAdminRoute } from "@/components/SuperAdminRoute";
+import EventDetails from "@/pages/EventDetails";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
             <AccessRequests />
           </SuperAdminRoute>
         ),
+      },
+      {
+        path: "/event/:id",
+        element: <EventDetails />,
       },
     ],
   },
