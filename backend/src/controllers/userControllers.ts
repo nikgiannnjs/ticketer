@@ -169,3 +169,14 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
     console.log(error);
   }
 };
+
+export const getVenue = async (req: Request, res: Response): Promise<void> => {
+  try{
+    const { id } = req.params;
+    const venue = await Venue.findById(id);
+    res.status(200).json({ venue });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};

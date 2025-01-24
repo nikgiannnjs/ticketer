@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Event } from "@/hooks/useGetEvents";
 import { formatCurrency } from "@/lib/utils";
+import { Link } from "react-router";
 
 type Props = {
   event: Event;
@@ -9,11 +10,13 @@ type Props = {
 const R2_BUCKET = import.meta.env.VITE_R2_DEV_SUBDOMAIN;
 
 export function EventCard({ event }: Props) {
+
   const datetime = new Date(event.datetime);
   const remainingTickets = event.capacity - event.ticketsBooked;
 
   return (
-    <Card className="w-full hover:shadow-lg transition-shadow">
+    <Link to={`/event/${event._id}`}>
+    <Card className="w-full hover:shadow-lg transition-shadow cursor-pointer" >
       <div className="aspect-video relative overflow-hidden rounded-t-lg">
         <img
           src={`${R2_BUCKET}${event.image}`}
@@ -49,5 +52,6 @@ export function EventCard({ event }: Props) {
         </div>
       </CardContent>
     </Card>
+    </Link>
   );
-} 
+}
