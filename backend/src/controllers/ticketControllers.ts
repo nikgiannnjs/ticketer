@@ -5,8 +5,9 @@ import Venue from "@/models/venueModel";
 import { checkRequiredFields } from "@/utils/checkRequiredFields";
 import { qrCodeGenerator } from "@/utils/qrGenerator";
 import { Types } from "mongoose";
+import Stripe from "stripe";
 
-export const bookTicket = async (
+export const holdTicket = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -39,6 +40,7 @@ export const bookTicket = async (
 
     const capacity = venue.capacity;
     const totalTickets = venue.ticketsBooked;
+    const totalPrice = venue.price * ticketAmount;
 
     if (totalTickets + ticketAmount > capacity) {
       res.status(400).json({
@@ -96,6 +98,45 @@ export const bookTicket = async (
 
     res.status(201).json({
       message: "Booking was successfull.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+
+export const webHookPayment = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const signature = req.headers["stripe-signature"] as string;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SIGNING_SECRET as string;
+
+    const event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      webhookSecret
+    );
+
+    if (event.type !== "payment_intent.succeeded") {
+      res.status(400).json({ message: "Payment failed." });
+
+      return;
+    }
+
+    const paymentIntent = event.data.object;
+    const paymentAmount = paymentIntent.amount_received;
+    const paymentId = paymentIntent.id;
+    const paymentIntentDetails = await stripe.paymentIntents.retrieve(
+      paymentId
+    );
+
+    res.status(200).json({
+      message: "Payment made succesfully.",
+      paymentAmount: paymentAmount,
     });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });

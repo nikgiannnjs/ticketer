@@ -1,7 +1,9 @@
 import { Router } from "express";
 const router = Router();
-import { bookTicket } from "@/controllers/ticketControllers";
+import { holdTicket, webHookPayment } from "@/controllers/ticketControllers";
 
-router.post("/bookTicket/:id", bookTicket);
+router.post("/holdTicket/:id", holdTicket);
+router.post("/webhook/payment", webHookPayment);
+router.patch("/bookTicket");
 
 export default router;
