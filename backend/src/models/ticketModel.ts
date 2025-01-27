@@ -9,6 +9,7 @@ interface ITicket extends Document {
   purchaseDate: Date;
   user: string;
   email: string;
+  createdAt: Date;
 }
 
 const ticketSchema = new mongoose.Schema<ITicket>({
@@ -23,6 +24,7 @@ const ticketSchema = new mongoose.Schema<ITicket>({
   purchaseDate: { type: Date },
   user: { type: String, required: true },
   email: { type: String, required: true, trime: true },
+  createdAt: { type: Date, default: Date.now }, //expires: "15m" and when payment happens, update { $set: { status: "bought", expiresAt: null } }
 });
 
 const Ticket = mongoose.model<ITicket>("Ticket", ticketSchema);
