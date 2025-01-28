@@ -7,6 +7,8 @@ import { qrCodeGenerator } from "@/utils/qrGenerator";
 import { Types } from "mongoose";
 import Stripe from "stripe";
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+
 export const holdTicket = async (
   req: Request,
   res: Response
@@ -96,16 +98,34 @@ export const holdTicket = async (
       { new: true }
     );
 
+    const stripeObj = {
+      price_data: {
+        currency: "eur",
+        product_data: {
+          name: String(tickets[0].venue),
+        },
+        unit_amount: tickets[0].price * 100,
+      },
+      quantity: tickets.length,
+    };
+
+    const stripeSession = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [stripeObj],
+      mode: "payment",
+      success_url: "http://127.0.0.1:3000", //redirect payment url
+      cancel_url: "http://127.0.0.1:3000",
+    });
+
     res.status(201).json({
       message: "Booking was successfull.",
+      stripeSessionId: stripeSession.id,
     });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
   }
 };
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export const webHookPayment = async (
   req: Request,
@@ -133,6 +153,8 @@ export const webHookPayment = async (
     const paymentIntentDetails = await stripe.paymentIntents.retrieve(
       paymentId
     );
+
+    // twra update tickets & stelnw mail
 
     res.status(200).json({
       message: "Payment made succesfully.",
