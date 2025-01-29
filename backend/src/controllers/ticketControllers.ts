@@ -167,7 +167,6 @@ export const webHookPayment = async (
       return;
     }
 
-    const venue = sessionStorage.metadata.venueId;
     const paymentIntent = event.data.object;
     const paymentAmount = paymentIntent.amount_received;
 
