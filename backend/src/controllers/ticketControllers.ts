@@ -14,7 +14,7 @@ export const holdTicket = async (
   res: Response
 ): Promise<void> => {
   try {
-    const requiredFields = ["userName", "email", "ticketAmount"];
+    const requiredFields = ["email", "ticketAmount"];
     const missingFields = await checkRequiredFields(req.body, requiredFields);
 
     if (missingFields.length) {
@@ -26,7 +26,6 @@ export const holdTicket = async (
     }
 
     const id = req.params.id;
-    const userName = req.body.userName;
     const email = req.body.email;
     const ticketAmount = req.body.ticketAmount;
 
@@ -60,7 +59,6 @@ export const holdTicket = async (
       qrImage: string;
       price: number;
       purchaseDate: Date;
-      user: string;
       email: string;
     }[] = [];
 
@@ -68,7 +66,7 @@ export const holdTicket = async (
       const ticketId = randomBytes(16).toString("hex");
 
       const qrData = {
-        name: userName,
+        name: email,
         venue: venue.title,
         ticketId: ticketId,
       };
@@ -83,7 +81,6 @@ export const holdTicket = async (
         qrImage: qrString,
         price: venue.price,
         purchaseDate: new Date(),
-        user: userName,
         email: email,
       });
     }
@@ -139,6 +136,14 @@ export const webHookPayment = async (
   try {
     const signature = req.headers["stripe-signature"] as string;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SIGNING_SECRET as string;
+    const userEmail = sessionStorage.metadata.email;
+
+    if (!userEmail) {
+      res.status(400).json({
+        message: "User email metadata not found.",
+      });
+      return;
+    }
 
     const event = stripe.webhooks.constructEvent(
       req.body,
@@ -147,19 +152,21 @@ export const webHookPayment = async (
     );
 
     if (event.type === "checkout.session.expired") {
+      await Ticket.deleteMany({ email: userEmail, status: "on hold" });
+
       res.status(400).json({
         message: "Session expired.",
       });
     }
 
     if (event.type !== "payment_intent.succeeded") {
+      await Ticket.deleteMany({ email: userEmail, status: "on hold" });
+
       res.status(400).json({ message: "Payment failed." });
 
       return;
     }
 
-    const venue = sessionStorage.metadata.venueId;
-    const userEmail = sessionStorage.metadata.email;
     const paymentIntent = event.data.object;
     const paymentAmount = paymentIntent.amount_received;
 
