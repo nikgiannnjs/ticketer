@@ -115,6 +115,11 @@ export const holdTicket = async (
       mode: "payment",
       success_url: "http://127.0.0.1:3000", //redirect payment url
       cancel_url: "http://127.0.0.1:3000",
+      expires_at: Math.floor(Date.now() / 1000) + 900,
+      metadata: {
+        venueId: id,
+        userEmail: email,
+      },
     });
 
     res.status(201).json({
@@ -141,20 +146,37 @@ export const webHookPayment = async (
       webhookSecret
     );
 
+    if (event.type === "checkout.session.expired") {
+      res.status(400).json({
+        message: "Session expired.",
+      });
+    }
+
     if (event.type !== "payment_intent.succeeded") {
       res.status(400).json({ message: "Payment failed." });
 
       return;
     }
 
+    const venue = sessionStorage.metadata.venueId;
+    const userEmail = sessionStorage.metadata.email;
     const paymentIntent = event.data.object;
     const paymentAmount = paymentIntent.amount_received;
-    const paymentId = paymentIntent.id;
-    const paymentIntentDetails = await stripe.paymentIntents.retrieve(
-      paymentId
+
+    const updatedTickets = await Ticket.updateMany(
+      { email: userEmail, status: "on hold" },
+      { status: "bought" }
     );
 
-    // twra update tickets & stelnw mail
+    if (!updatedTickets) {
+      res.status(400).json({
+        message: "Failed to update tickets.",
+      });
+
+      return;
+    }
+
+    //stelnw mail
 
     res.status(200).json({
       message: "Payment made succesfully.",
