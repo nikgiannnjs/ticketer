@@ -197,7 +197,7 @@ export const webHookPayment = async (
       return;
     }
 
-    const tickets = await Ticket.find({ email: userEmail, venue: venueId });
+    const tickets = await Ticket.find({ email: userEmail, venue: venueId, status: "bought" });
 
     if (!tickets) {
       res.status(400).json({
@@ -215,7 +215,7 @@ export const webHookPayment = async (
       qrStrings.push(ticket.qrImage);
     }
 
-    const email = await emailer(userEmail, qrStrings);
+    await emailer(userEmail, qrStrings);
 
     res.status(200).json({
       message: "Payment made succesfully."
