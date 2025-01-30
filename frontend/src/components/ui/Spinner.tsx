@@ -15,7 +15,6 @@ export const Spinner = ({ isLoading, className }: Props) => {
     <div
       className={cn(
         "flex items-center justify-center",
-        "w-full h-full",
         className
       )}
     >
