@@ -10,6 +10,9 @@ import Register from "./pages/Register";
 import AccessRequests from "@/pages/AccessRequests";
 import { SuperAdminRoute } from "@/components/SuperAdminRoute";
 import EventDetails from "@/pages/EventDetails";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
+import { PaymentRoute } from "@/components/PaymentRoute";
 
 const router = createBrowserRouter([
   {
@@ -51,6 +54,22 @@ const router = createBrowserRouter([
       {
         path: "/event/:id",
         element: <EventDetails />,
+      },
+      {
+        path: "/payment-success",
+        element: (
+          <PaymentRoute>
+            <PaymentSuccess />
+          </PaymentRoute>
+        ),
+      },
+      {
+        path: "/payment-fail",
+        element: (
+          <PaymentRoute>
+            <PaymentFailed />
+          </PaymentRoute>
+        ),
       },
     ],
   },

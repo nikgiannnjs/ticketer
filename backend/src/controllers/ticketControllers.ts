@@ -111,14 +111,17 @@ export const holdTicket = async (
       payment_method_types: ["card"],
       line_items: [stripeObj],
       mode: "payment",
-      success_url: "http://127.0.0.1:3000", //redirect payment url
-      cancel_url: "http://127.0.0.1:3000",
-      expires_at: Math.floor(Date.now() / 1000) + 900,
-      metadata: {
-        venueId: id,
-        userEmail: email,
-        amount: ticketAmount,
-      },
+      success_url: `${process.env.FRONTEND_URL}/payment-success`,
+      cancel_url: `${process.env.FRONTEND_URL}/payment-fail`,
+      customer_email: email,
+      expires_at: Math.floor(Date.now() / 1000) + 1800,
+    
+        metadata: {
+          venueId: id,
+          userEmail: email,
+          amount: ticketAmount,
+        },
+
     });
 
     res.status(201).json({
@@ -135,18 +138,12 @@ export const webHookPayment = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  try {
-    const signature = req.headers["stripe-signature"] as string;
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SIGNING_SECRET as string;
-    const userEmail = sessionStorage.metadata.email;
-    const ticketAmount = sessionStorage.metadata.ticketAmount;
 
-    if (!userEmail) {
-      res.status(400).json({
-        message: "User email metadata not found.",
-      });
-      return;
-    }
+  try {
+
+    const signature = req.headers["stripe-signature"] as string;
+    const webhookSecret = `${process.env.STRIPE_WEBHOOK_SIGNING_SECRET}`;
+
 
     const event = stripe.webhooks.constructEvent(
       req.body,
@@ -154,15 +151,30 @@ export const webHookPayment = async (
       webhookSecret
     );
 
+
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    const userEmail = session.metadata?.userEmail;
+    const venueId = session.metadata?.venueId;
+
+    if (!userEmail || !venueId) {
+      res.status(400).json({
+        message: "User email or venue id metadata not found.",
+      });
+      return;
+    }
+
     if (event.type === "checkout.session.expired") {
       await Ticket.deleteMany({ email: userEmail, status: "on hold" });
 
       res.status(400).json({
         message: "Session expired.",
       });
+
+      return;
     }
 
-    if (event.type !== "payment_intent.succeeded") {
+    if (event.type === "payment_intent.payment_failed") {
       await Ticket.deleteMany({ email: userEmail, status: "on hold" });
 
       res.status(400).json({ message: "Payment failed." });
@@ -170,11 +182,10 @@ export const webHookPayment = async (
       return;
     }
 
-    const paymentIntent = event.data.object;
-    const paymentAmount = paymentIntent.amount_received;
+    if(event.type === "checkout.session.completed"){
 
     const updatedTickets = await Ticket.updateMany(
-      { email: userEmail, status: "on hold" },
+      { email: userEmail, status: "on hold", venue: venueId },
       { status: "bought" }
     );
 
@@ -186,9 +197,7 @@ export const webHookPayment = async (
       return;
     }
 
-    const qrStrings: string[] = [];
-
-    const tickets = await Ticket.find({ email: userEmail });
+    const tickets = await Ticket.find({ email: userEmail, venue: venueId });
 
     if (!tickets) {
       res.status(400).json({
@@ -197,6 +206,8 @@ export const webHookPayment = async (
 
       return;
     }
+
+    const qrStrings: string[] = [];
 
     for (let i = 0; i < tickets.length; i++) {
       const ticket = tickets[i];
@@ -207,9 +218,11 @@ export const webHookPayment = async (
     const email = await emailer(userEmail, qrStrings);
 
     res.status(200).json({
-      message: "Payment made succesfully.",
-      paymentAmount: paymentAmount,
+      message: "Payment made succesfully."
     });
+
+    }
+
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);

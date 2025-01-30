@@ -37,7 +37,7 @@ export default function Events() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
-        <Spinner isLoading />
+        <Spinner isLoading className="w-full h-full" />
       </div>
     );
   }

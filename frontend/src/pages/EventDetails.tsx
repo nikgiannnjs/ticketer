@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -9,14 +9,15 @@ import { formatCurrency } from "@/lib/utils";
 import { toast } from "react-hot-toast";
 import { useGetEvent } from "@/hooks/useGetEvent";
 
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 
 export default function EventDetails() {
   const { id } = useParams();
   const [email, setEmail] = useState("");
   const [ticketCount, setTicketCount] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-
   const { data: event, isLoading: isEventLoading } = useGetEvent(id);
+  const { mutate: initiateCheckout, isLoading: isCheckoutLoading } =
+    useStripeCheckout();
 
   if (isEventLoading || !event) {
     return <div>Loading...</div>;
@@ -29,22 +30,16 @@ export default function EventDetails() {
   const hasRemainingTickets = remainingTickets > 0;
 
   const handlePurchase = async () => {
-
     if (!hasRemainingTickets) {
       toast.error("All the tickets are sold out");
       return;
     }
 
-    try {
-      setIsLoading(true);
-     // TODO: purchase tickets post
-     console.log("purchase tickets post");
-      toast.success("Tickets purchased successfully!");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to purchase tickets");
-    } finally {
-      setIsLoading(false);
-    }
+    initiateCheckout({
+      eventId: event._id,
+      email,
+      ticketAmount: ticketCount,
+    });
   };
 
   return (
@@ -57,7 +52,7 @@ export default function EventDetails() {
             className="object-cover w-full h-full"
           />
         </div>
-        
+
         <CardHeader>
           <CardTitle>{event.title}</CardTitle>
           <div className="flex justify-between items-center text-sm text-muted-foreground">
@@ -85,51 +80,50 @@ export default function EventDetails() {
             </p>
           </div>
           <h3 className="font-semibold">Purchase Tickets</h3>
-            <div className="flex justify-center items-center p-4 border border-muted-foreground rounded-lg">
-          <div className="space-y-4 flex-1">
-          
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-              />
+          <div className="flex justify-center items-center p-4 border border-muted-foreground rounded-lg">
+            <div className="space-y-4 flex-1">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tickets">Number of Tickets</Label>
+                <Input
+                  id="tickets"
+                  type="number"
+                  min="1"
+                  max={remainingTickets}
+                  value={ticketCount}
+                  onChange={(e) => setTicketCount(parseInt(e.target.value))}
+                  required
+                />
+                <p className="text-sm text-muted-foreground">
+                  {remainingTickets} tickets available
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-semibold">
+                  Total: {formatCurrency(totalPrice)}
+                </p>
+              </div>
+              <Button
+                className="w-full"
+                onClick={handlePurchase}
+                isLoading={isCheckoutLoading}
+                disabled={!hasRemainingTickets || !email}
+              >
+                Purchase Tickets
+              </Button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="tickets">Number of Tickets</Label>
-              <Input
-                id="tickets"
-                type="number"
-                min="1"
-                max={remainingTickets}
-                value={ticketCount}
-                onChange={(e) => setTicketCount(parseInt(e.target.value))}
-                required
-              />
-              <p className="text-sm text-muted-foreground">
-                {remainingTickets} tickets available
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold">
-                Total: {formatCurrency(totalPrice)}
-              </p>
-            </div>
-          <Button 
-            className="w-full" 
-            onClick={handlePurchase}
-            isLoading={isLoading}
-            disabled={!hasRemainingTickets || !email}
-          >
-            Purchase Tickets
-          </Button>
-          </div></div>
+          </div>
         </CardContent>
-
       </Card>
     </div>
   );

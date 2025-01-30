@@ -1,49 +1,87 @@
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useCreateEvent } from "@/hooks/useCreateEvent";
-import { LoaderCircle, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/Label";
 import { uploadImage } from "@/hooks/useImageUpload";
 import { toast } from "react-hot-toast";
+import { Textarea } from "@/components/ui/TextArea";
 
-const FormField = ({ 
-  label, 
-  name, 
-  type = "text", 
-  value, 
-  onChange, 
-  required = true,
-  className,
-  inputClassName,
-}: {
+type BaseFormFieldProps = {
   label: string;
   name: string;
-  type?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   className?: string;
   inputClassName?: string;
-}) => (
-  <div className={cn("space-y-2", className)}>
-    <Label htmlFor={name}>{label}</Label>
-    <Input
-      id={name}
-      name={name}
-      type={type}
-      value={value}
-      onChange={onChange}
-      required={required}
-      className={inputClassName}
-    />
-  </div>
-);
+};
+
+type TextInputFormFieldProps = BaseFormFieldProps & {
+  withTextArea?: false;
+  type?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+type TextAreaFormFieldProps = BaseFormFieldProps & {
+  withTextArea: true;
+  type?: never;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+};
+
+type FormFieldProps = TextInputFormFieldProps | TextAreaFormFieldProps;
+
+const FormField = (props: FormFieldProps) => {
+  const {
+    label,
+    name,
+    value,
+    required,
+    className,
+    inputClassName,
+    withTextArea,
+    type,
+    onChange,
+  } = props;
+  
+  return (
+    <div className={cn("space-y-2", className)}>
+      <Label htmlFor={name}>{label}</Label>
+      {withTextArea ? (
+        <Textarea
+          id={name}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          className={inputClassName}
+        />
+      ) : (
+        <Input
+          id={name}
+          name={name}
+          type={type}
+          value={value}
+          onChange={onChange}
+          required={required}
+          className={inputClassName}
+        />
+      )}
+    </div>
+  );
+};
 
 export default function CreateEvent() {
   const createEvent = useCreateEvent();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -56,7 +94,7 @@ export default function CreateEvent() {
     capacity: "",
     image: "",
   });
-  
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,11 +103,11 @@ export default function CreateEvent() {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file');
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
         return;
       }
-      
+
       setSelectedImage(file);
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
@@ -79,12 +117,12 @@ export default function CreateEvent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setIsSubmitting(true);
-      
+
       // Upload image first if one is selected
-      let imageUrl = '';
+      let imageUrl = "";
       if (selectedImage) {
         const fullUrl = await uploadImage(selectedImage);
         // Use URL API to parse the URL and get just the pathname
@@ -92,22 +130,22 @@ export default function CreateEvent() {
         imageUrl = url.pathname;
       }
 
-
       // Then create the event with the image URL
       await createEvent.mutateAsync({
         ...formData,
-        image: imageUrl
+        image: imageUrl,
       });
-
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error("Error creating event:", error);
       toast.error("Failed to create event");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -135,6 +173,7 @@ export default function CreateEvent() {
               name="description"
               value={formData.description}
               onChange={handleChange}
+              withTextArea
             />
 
             <div className="grid grid-cols-2 gap-4">
@@ -200,7 +239,7 @@ export default function CreateEvent() {
               <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
                 <input
                   type="file"
-                  id="image"
+                  ref={fileInputRef}
                   accept="image/*"
                   className="hidden"
                   onChange={handleImageChange}
@@ -209,16 +248,16 @@ export default function CreateEvent() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => document.getElementById('image')?.click()}
+                    onClick={() => fileInputRef.current?.click()}
                   >
                     <Upload className="mr-2 h-4 w-4" />
                     Upload Image
                   </Button>
                   {imagePreview && (
                     <div className="mt-4 w-full">
-                      <img 
-                        src={imagePreview} 
-                        alt="Preview" 
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
                         className="w-full h-48 object-cover rounded-md"
                       />
                     </div>
@@ -228,23 +267,17 @@ export default function CreateEvent() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full"
               disabled={createEvent.isLoading || isSubmitting}
+              isLoading={createEvent.isLoading || isSubmitting}
             >
-              {(createEvent.isLoading || isSubmitting) ? (
-                <>
-                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                'Create Event'
-              )}
+              Create Event
             </Button>
           </CardFooter>
         </form>
       </Card>
     </div>
   );
-} 
+}
