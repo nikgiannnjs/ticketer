@@ -6,6 +6,7 @@ import { checkRequiredFields } from "@/utils/checkRequiredFields";
 import { qrCodeGenerator } from "@/utils/qrGenerator";
 import { Types } from "mongoose";
 import Stripe from "stripe";
+import { emailer } from "@/utils/emailer";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -116,6 +117,7 @@ export const holdTicket = async (
       metadata: {
         venueId: id,
         userEmail: email,
+        amount: ticketAmount,
       },
     });
 
@@ -137,6 +139,7 @@ export const webHookPayment = async (
     const signature = req.headers["stripe-signature"] as string;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SIGNING_SECRET as string;
     const userEmail = sessionStorage.metadata.email;
+    const ticketAmount = sessionStorage.metadata.ticketAmount;
 
     if (!userEmail) {
       res.status(400).json({
@@ -183,7 +186,25 @@ export const webHookPayment = async (
       return;
     }
 
-    //stelnw mail
+    const qrStrings: string[] = [];
+
+    const tickets = await Ticket.find({ email: userEmail });
+
+    if (!tickets) {
+      res.status(400).json({
+        message: "Failed to find tickets.",
+      });
+
+      return;
+    }
+
+    for (let i = 0; i < tickets.length; i++) {
+      const ticket = tickets[i];
+
+      qrStrings.push(ticket.qrImage);
+    }
+
+    const email = await emailer(userEmail, qrStrings);
 
     res.status(200).json({
       message: "Payment made succesfully.",
