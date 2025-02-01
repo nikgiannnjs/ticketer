@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const BUCKET_ENDPOINT = process.env.CLOUDFLARE_R2_ENDPOINT;
-const ACCESS_KEY = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
-const SECRET_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
+const BUCKET_ENDPOINT = `${process.env.CLOUDFLARE_R2_ENDPOINT}`;
+const ACCESS_KEY = `${process.env.CLOUDFLARE_R2_ACCESS_KEY_ID}`;
+const SECRET_KEY = `${process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY}`;
 
 if (!BUCKET_ENDPOINT || !ACCESS_KEY || !SECRET_KEY) {
   throw new Error("S3 client variables missing.");

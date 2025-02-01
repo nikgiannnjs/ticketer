@@ -110,8 +110,8 @@ export const signedUrls = async (
   try {
     dotenv.config();
 
-    const BUCKET_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL;
-    const BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET_NAME;
+    const BUCKET_PUBLIC_URL = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}`;
+    const BUCKET_NAME = `${process.env.CLOUDFLARE_R2_BUCKET_NAME}`;
     const FIVE_MB = 5 * 1024 * 1024;
 
     const imageSize = req.body.imageSize;
