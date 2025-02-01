@@ -4,19 +4,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-hot-toast";
 import { isAxiosError } from "axios";
 import { LoginResponse } from "./useLogin";
+import { useNavigate } from "react-router";
 
 export type RegisterCredentials = {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  passwordConfirm: string;
 };
 
 export function useRegister() {
   const { setSession } = useAuth();
-
+  const navigate = useNavigate();
   return useMutation<LoginResponse, Error, RegisterCredentials>(
     async (credentials) => {
       const { data } = await axios.post<LoginResponse>(
-        "/users/register",
+        "/users/adminRegister",
         credentials
       );
       return data;
@@ -25,6 +29,7 @@ export function useRegister() {
       onSuccess: (data) => {
         setSession(data);
         toast.success("Registration successful!");
+        navigate("/create-event");
       },
       onError: (e) => {
         if (isAxiosError(e)) {
