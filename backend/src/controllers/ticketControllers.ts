@@ -8,7 +8,7 @@ import { Types } from "mongoose";
 import Stripe from "stripe";
 import { emailer } from "@/utils/emailer";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = new Stripe(`${process.env.STRIPE_SECRET_KEY}`);
 
 export const holdTicket = async (
   req: Request,
@@ -143,7 +143,6 @@ export const webHookPayment = async (
 
     const signature = req.headers["stripe-signature"] as string;
     const webhookSecret = `${process.env.STRIPE_WEBHOOK_SIGNING_SECRET}`;
-
 
     const event = stripe.webhooks.constructEvent(
       req.body,
