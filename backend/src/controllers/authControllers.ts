@@ -146,7 +146,27 @@ export const adminUserRegister = async (
       }
     );
 
-    res.status(201).json({ message: "New Admin registered successfully." });
+    // Generate tokens after successful registration
+    const accessToken = jwt.sign(
+      { email, isSuperAdmin: status === "super-admin" },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
+      }
+    );
+    const refreshToken = jwt.sign(
+      { email },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
+      }
+    );
+
+    res.status(201).json({
+      message: "New Admin registered successfully.",
+      accessToken: accessToken,
+      resetToken: refreshToken,
+    });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
