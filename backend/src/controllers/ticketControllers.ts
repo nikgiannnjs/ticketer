@@ -115,13 +115,12 @@ export const holdTicket = async (
       cancel_url: `${process.env.FRONTEND_URL}/payment-fail`,
       customer_email: email,
       expires_at: Math.floor(Date.now() / 1000) + 1800,
-    
-        metadata: {
-          venueId: id,
-          userEmail: email,
-          amount: ticketAmount,
-        },
 
+      metadata: {
+        venueId: id,
+        userEmail: email,
+        amount: ticketAmount,
+      },
     });
 
     res.status(201).json({
@@ -138,9 +137,7 @@ export const webHookPayment = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-
   try {
-
     const signature = req.headers["stripe-signature"] as string;
     const webhookSecret = `${process.env.STRIPE_WEBHOOK_SIGNING_SECRET}`;
 
@@ -150,14 +147,13 @@ export const webHookPayment = async (
       webhookSecret
     );
 
-
     const session = event.data.object as Stripe.Checkout.Session;
 
     const userEmail = session.metadata?.userEmail;
     const venueId = session.metadata?.venueId;
 
     if (!userEmail || !venueId) {
-      res.status(400).json({
+      res.status(404).json({
         message: "User email or venue id metadata not found.",
       });
       return;
@@ -166,7 +162,7 @@ export const webHookPayment = async (
     if (event.type === "checkout.session.expired") {
       await Ticket.deleteMany({ email: userEmail, status: "on hold" });
 
-      res.status(400).json({
+      res.status(408).json({
         message: "Session expired.",
       });
 
@@ -176,52 +172,53 @@ export const webHookPayment = async (
     if (event.type === "payment_intent.payment_failed") {
       await Ticket.deleteMany({ email: userEmail, status: "on hold" });
 
-      res.status(400).json({ message: "Payment failed." });
+      res.status(402).json({ message: "Payment failed." });
 
       return;
     }
 
-    if(event.type === "checkout.session.completed"){
+    if (event.type === "checkout.session.completed") {
+      const updatedTickets = await Ticket.updateMany(
+        { email: userEmail, status: "on hold", venue: venueId },
+        { status: "bought" }
+      );
 
-    const updatedTickets = await Ticket.updateMany(
-      { email: userEmail, status: "on hold", venue: venueId },
-      { status: "bought" }
-    );
+      if (!updatedTickets) {
+        res.status(404).json({
+          message: "Failed to update tickets.",
+        });
 
-    if (!updatedTickets) {
-      res.status(400).json({
-        message: "Failed to update tickets.",
+        return;
+      }
+
+      const tickets = await Ticket.find({
+        email: userEmail,
+        venue: venueId,
+        status: "bought",
       });
 
-      return;
-    }
+      if (!tickets) {
+        res.status(404).json({
+          message: "Failed to find tickets.",
+        });
 
-    const tickets = await Ticket.find({ email: userEmail, venue: venueId, status: "bought" });
+        return;
+      }
 
-    if (!tickets) {
-      res.status(400).json({
-        message: "Failed to find tickets.",
+      const qrStrings: string[] = [];
+
+      for (let i = 0; i < tickets.length; i++) {
+        const ticket = tickets[i];
+
+        qrStrings.push(ticket.qrImage);
+      }
+
+      await emailer(userEmail, qrStrings);
+
+      res.status(200).json({
+        message: "Payment made succesfully.",
       });
-
-      return;
     }
-
-    const qrStrings: string[] = [];
-
-    for (let i = 0; i < tickets.length; i++) {
-      const ticket = tickets[i];
-
-      qrStrings.push(ticket.qrImage);
-    }
-
-    await emailer(userEmail, qrStrings);
-
-    res.status(200).json({
-      message: "Payment made succesfully."
-    });
-
-    }
-
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);

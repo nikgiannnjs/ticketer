@@ -96,7 +96,7 @@ export const adminUserRegister = async (
     const user = await Admin.findOne({ email });
 
     if (!user) {
-      res.status(400).json({
+      res.status(404).json({
         message: "User not found.",
       });
 
@@ -104,7 +104,7 @@ export const adminUserRegister = async (
     }
 
     if (user.status !== "active") {
-      res.status(400).json({
+      res.status(403).json({
         message: "Access denied.",
       });
 
@@ -259,8 +259,7 @@ export const requestAccess = async (
 
     if (!validEmail) {
       res.status(400).json({
-        message:
-          "Invalid email format. Email has to be in the format of test@gmail.com",
+        message: "Invalid email format.",
       });
 
       return;
@@ -317,7 +316,7 @@ export const acceptRequest = async (
     const user = await Admin.findOne({ email });
 
     if (!user) {
-      res.status(400).json({
+      res.status(404).json({
         message: "User not found.",
       });
 

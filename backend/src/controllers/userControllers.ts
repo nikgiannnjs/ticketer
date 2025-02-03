@@ -176,7 +176,7 @@ export const getVenue = async (req: Request, res: Response): Promise<void> => {
     const venue = await Venue.findById(id);
 
     if (!venue) {
-      res.status(200).json({
+      res.status(404).json({
         messsage: "Venue not found.",
       });
 
