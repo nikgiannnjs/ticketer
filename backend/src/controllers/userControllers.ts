@@ -171,10 +171,83 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const getVenue = async (req: Request, res: Response): Promise<void> => {
-  try{
+  try {
     const { id } = req.params;
     const venue = await Venue.findById(id);
+
+    if (!venue) {
+      res.status(200).json({
+        messsage: "Venue not found.",
+      });
+
+      return;
+    }
     res.status(200).json({ venue });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const updateVenue = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const requiredFields = [
+      "title",
+      "description",
+      "country",
+      "city",
+      "address",
+      "dateTime",
+      "price",
+      "capacity",
+      "image",
+    ];
+
+    const missingFields = await checkRequiredFields(req.body, requiredFields);
+    if (missingFields.length) {
+      res.status(400).json({
+        message: `Request body fields missing: ${missingFields.join(", ")}`,
+      });
+
+      return;
+    }
+
+    const newVenue = {
+      title: req.body.title,
+      description: req.body.description,
+      country: req.body.country,
+      city: req.body.city,
+      address: req.body.address,
+      dateTime: req.body.dateTime,
+      price: req.body.price,
+      capacity: req.body.capacity,
+      image: req.body.image,
+      updatedAt: new Date(),
+    };
+
+    const venue = await Venue.findOneAndUpdate(
+      { _id: id },
+      { $set: newVenue },
+      { new: true, runValidators: true }
+    );
+
+    if (!venue) {
+      res.status(400).json({
+        message: "Venue not found.",
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      message: "Venue updated successfully.",
+      venue: venue,
+    });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);

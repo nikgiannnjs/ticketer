@@ -146,7 +146,6 @@ export const adminUserRegister = async (
       }
     );
 
-    // Generate tokens after successful registration
     const accessToken = jwt.sign(
       { email, isSuperAdmin: status === "super-admin" },
       process.env.JWT_SECRET as string,
@@ -154,13 +153,9 @@ export const adminUserRegister = async (
         expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
       }
     );
-    const refreshToken = jwt.sign(
-      { email },
-      process.env.JWT_SECRET as string,
-      {
-        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
-      }
-    );
+    const refreshToken = jwt.sign({ email }, process.env.JWT_SECRET as string, {
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
+    });
 
     res.status(201).json({
       message: "New Admin registered successfully.",
@@ -211,9 +206,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const accessToken = jwt.sign({ email , isSuperAdmin: user.status === "super-admin" }, process.env.JWT_SECRET as string, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
-    });
+    const accessToken = jwt.sign(
+      { email, isSuperAdmin: user.status === "super-admin" },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
+      }
+    );
     const refreshToken = jwt.sign({ email }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
     });
@@ -287,7 +286,7 @@ export const getAccessRequests = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
-  const accessRequests = await Admin.find({ status: "requested" }) ?? [];
+  const accessRequests = (await Admin.find({ status: "requested" })) ?? [];
   res.status(200).json({ accessRequests });
 };
 
