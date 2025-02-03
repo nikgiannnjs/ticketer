@@ -237,7 +237,7 @@ export const updateVenue = async (
     );
 
     if (!venue) {
-      res.status(400).json({
+      res.status(404).json({
         message: "Venue not found.",
       });
 
@@ -247,6 +247,31 @@ export const updateVenue = async (
     res.status(200).json({
       message: "Venue updated successfully.",
       venue: venue,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const deleteVenue = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const venue = await Venue.findByIdAndDelete(id);
+
+    if (!venue) {
+      res.status(404).json({
+        message: "Venue not found.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Venue deleted succesfully.",
     });
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
