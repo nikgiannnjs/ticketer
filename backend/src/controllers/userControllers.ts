@@ -154,13 +154,13 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
       ? query.replace(/\s+/g, " ").trim().toLowerCase()
       : "";
 
-    const searchCondition = formattedQuery
+    const search = formattedQuery
       ? { title: { $regex: formattedQuery, $options: "i" } }
       : {};
 
     const offset = (page - 1) * limit;
 
-    const allVenues = await Venue.find(searchCondition)
+    const allVenues = await Venue.find(search)
       .sort({ createdAt: 1 })
       .skip(offset)
       .limit(limit)
