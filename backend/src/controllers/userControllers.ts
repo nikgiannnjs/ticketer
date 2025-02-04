@@ -149,21 +149,19 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
     const page = Number(req.query.page) ?? 1;
     const limit = Number(req.query.limit) ?? 10;
 
-    const query = req.query.title as string;
+    const title = req.query.title as string;
+    const sort = req.query.sort === "desc" ? 1 : -1;
 
-    if (!query) {
-      res.status(400).json({
-        message: "Query not found.",
-      });
-    }
-    const formattedQuery = query.replace(/\s+/g, " ").trim().toLowerCase();
+    const formattedQuery = title.replace(/\s+/g, " ").trim().toLowerCase();
 
-    const search = { title: { $regex: formattedQuery, $options: "i" } };
+    const search = formattedQuery
+      ? { title: { $regex: formattedQuery, $options: "i" } }
+      : {};
 
     const offset = (page - 1) * limit;
 
     const allVenues = await Venue.find(search)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: sort })
       .skip(offset)
       .limit(limit)
       .exec();
