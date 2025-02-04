@@ -33,6 +33,13 @@ const venueSchema = new mongoose.Schema<IVenue>({
   updatedAt: { type: Date, default: Date.now },
 });
 
+try {
+  venueSchema.index({ title: 1 }, { collation: { locale: "en", strength: 2 } });
+  venueSchema.index({ title: "text" });
+} catch (error) {
+  console.error("Error connecting to the database or creating index:", error);
+}
+
 const Venue = mongoose.model<IVenue>("Venue", venueSchema);
 
 export default Venue;

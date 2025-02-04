@@ -11,6 +11,7 @@ import { formatter } from "@/utils/formatter";
 import { Admin } from "@/models/userModel";
 import { s3Client } from "@/db/s3Client";
 import dotenv from "dotenv";
+import { title } from "process";
 dotenv.config();
 
 export const createNewVenue = async (
@@ -273,6 +274,39 @@ export const deleteVenue = async (
     res.status(200).json({
       message: "Venue deleted succesfully.",
     });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
+    console.log(error);
+  }
+};
+
+export const searchVenue = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const query = req.query.title as string;
+
+    if (!query) {
+      res.status(400).json({
+        message: "Search query not found.",
+      });
+
+      return;
+    }
+
+    const formattedQuery = query.replace(/\s+/g, " ").trim().toLowerCase();
+
+    const venues = await Venue.find({ $text: { $search: formattedQuery } });
+
+    if (!venues || venues.length === 0) {
+      res.status(404).json({
+        message: "Venues not found.",
+      });
+      return;
+    }
+
+    res.status(200).json(venues);
   } catch (error) {
     res.status(500).json({ message: "An error occurred", error });
     console.log(error);
