@@ -6,7 +6,6 @@ import {
   getVenue,
   updateVenue,
   deleteVenue,
-  searchVenue,
 } from "@/controllers/userControllers";
 import { validTokenCheck } from "@/middleware/validTokenCheck";
 
@@ -18,6 +17,5 @@ router.get("/getAllVenues", allVenues);
 router.get("/getVenue/:id", getVenue);
 router.put("/updateVenue/:id", validTokenCheck, updateVenue);
 router.delete("/deleteVenue/:id", validTokenCheck, deleteVenue);
-router.post("/searchVenue", searchVenue);
 
 export default router;
