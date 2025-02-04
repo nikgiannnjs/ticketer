@@ -150,13 +150,15 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
     const limit = Number(req.query.limit) ?? 10;
 
     const query = req.query.title as string;
-    const formattedQuery = query
-      ? query.replace(/\s+/g, " ").trim().toLowerCase()
-      : "";
 
-    const search = formattedQuery
-      ? { title: { $regex: formattedQuery, $options: "i" } }
-      : {};
+    if (!query) {
+      res.status(400).json({
+        message: "Query not found.",
+      });
+    }
+    const formattedQuery = query.replace(/\s+/g, " ").trim().toLowerCase();
+
+    const search = { title: { $regex: formattedQuery, $options: "i" } };
 
     const offset = (page - 1) * limit;
 
