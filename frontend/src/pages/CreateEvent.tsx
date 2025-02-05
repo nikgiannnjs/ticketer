@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useCreateEvent } from "@/hooks/useCreateEvent";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,9 @@ import { Label } from "@/components/ui/Label";
 import { uploadImage } from "@/hooks/useImageUpload";
 import { toast } from "react-hot-toast";
 import { Textarea } from "@/components/ui/TextArea";
+import { useParams, useNavigate } from "react-router";
+import { useGetEvent } from "@/hooks/useGetEvent";
+import { useUpdateEvent } from "@/hooks/useUpdateEvent";
 
 type BaseFormFieldProps = {
   label: string;
@@ -51,7 +54,7 @@ const FormField = (props: FormFieldProps) => {
     type,
     onChange,
   } = props;
-  
+
   return (
     <div className={cn("space-y-2", className)}>
       <Label htmlFor={name}>{label}</Label>
@@ -80,7 +83,13 @@ const FormField = (props: FormFieldProps) => {
 };
 
 export default function CreateEvent() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data: eventData, isLoading: isEventLoading } = useGetEvent(id);
+  const isEditMode = !!id;
+
   const createEvent = useCreateEvent();
+  const updateEvent = useUpdateEvent();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -115,22 +124,21 @@ export default function CreateEvent() {
     }
   };
 
+  const handleImageUpload = async (image?: File | null) => {
+    if (!image) return "";
+    const fullUrl = await uploadImage(image);
+    const url = new URL(fullUrl);
+    return url.pathname;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       setIsSubmitting(true);
 
-      // Upload image first if one is selected
-      let imageUrl = "";
-      if (selectedImage) {
-        const fullUrl = await uploadImage(selectedImage);
-        // Use URL API to parse the URL and get just the pathname
-        const url = new URL(fullUrl);
-        imageUrl = url.pathname;
-      }
+      const imageUrl = await handleImageUpload(selectedImage);
 
-      // Then create the event with the image URL
       await createEvent.mutateAsync({
         ...formData,
         image: imageUrl,
@@ -138,6 +146,29 @@ export default function CreateEvent() {
     } catch (error) {
       console.error("Error creating event:", error);
       toast.error("Failed to create event");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      setIsSubmitting(true);
+
+      const imageUrl = selectedImage
+        ? await handleImageUpload(selectedImage)
+        : formData.image;
+
+      await updateEvent.mutateAsync({
+        id: id as string,
+        ...formData,
+        image: imageUrl,
+      });
+    } catch (error) {
+      console.error("Error updating event:", error);
+      toast.error("Failed to update event");
     } finally {
       setIsSubmitting(false);
     }
@@ -153,13 +184,43 @@ export default function CreateEvent() {
     }));
   };
 
+  useEffect(() => {
+    if (isEditMode && eventData) {
+      const dateOnly = new Date(eventData.datetime).toLocaleDateString("en-CA"); // we need it to be in the format of YYYY-MM-DD and this locale does that
+      const timeOnly = new Date(eventData.datetime).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      const imageUrl = eventData.image
+        ? `${import.meta.env.VITE_R2_DEV_SUBDOMAIN}${eventData.image}`
+        : "";
+      setImagePreview(imageUrl);
+
+      setFormData({
+        title: eventData.title,
+        description: eventData.description,
+        country: eventData.country,
+        city: eventData.city,
+        address: eventData.address,
+        date: dateOnly,
+        time: timeOnly,
+        price: eventData.price.toString(),
+        capacity: eventData.capacity.toString(),
+        image: eventData.image,
+      });
+    }
+  }, [isEditMode, eventData]);
+
   return (
     <div className="w-full max-w-2xl mx-auto mt-20 p-4">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Event</CardTitle>
+          <CardTitle>
+            {isEditMode ? "Edit Event" : "Create New Event"}
+          </CardTitle>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={isEditMode ? handleUpdate : handleSubmit}>
           <CardContent className="space-y-4">
             <FormField
               label="Title"
@@ -267,14 +328,25 @@ export default function CreateEvent() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={createEvent.isLoading || isSubmitting}
-              isLoading={createEvent.isLoading || isSubmitting}
-            >
-              Create Event
-            </Button>
+            {!isEditMode ? (
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={createEvent.isLoading || isSubmitting}
+                isLoading={createEvent.isLoading || isSubmitting}
+              >
+                Create Event
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={updateEvent.isLoading || isSubmitting}
+                isLoading={updateEvent.isLoading || isSubmitting}
+              >
+                Update Event
+              </Button>
+            )}
           </CardFooter>
         </form>
       </Card>

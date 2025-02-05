@@ -71,6 +71,14 @@ const router = createBrowserRouter([
           </PaymentRoute>
         ),
       },
+      {
+        path: "/edit-event/:id",
+        element: (
+          <ProtectedRoute>
+            <CreateEvent />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ]);
