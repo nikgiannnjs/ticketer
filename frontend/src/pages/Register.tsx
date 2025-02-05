@@ -80,7 +80,7 @@ export default function Register() {
           setIsModalOpen(false);
           setRequestEmail("");
         },
-      }
+      },
     );
   };
 
@@ -132,22 +132,22 @@ export default function Register() {
                 required={true}
               />
               <div className="flex flex-col gap-4 pt-4">
-              <Button type="submit" className="w-full" isLoading={isLoading}>
-                Register
-              </Button>
-              <ModalTrigger asChild>
-                <Button
-                  type="button"
-                  variant="link"
-                  className="w-full font-bold"
-                >
-                  Request Access
+                <Button type="submit" className="w-full" isLoading={isLoading}>
+                  Register
                 </Button>
-              </ModalTrigger>
-            </div>
-          </form>
-          <ModalContent>
-            <ModalHeader>
+                <ModalTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="w-full font-bold"
+                  >
+                    Request Access
+                  </Button>
+                </ModalTrigger>
+              </div>
+            </form>
+            <ModalContent>
+              <ModalHeader>
                 <ModalTitle>Request Access</ModalTitle>
                 <ModalDescription>
                   Enter your email to request access to the platform

@@ -15,4 +15,4 @@ export function SuperAdminRoute({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
-} 
+}

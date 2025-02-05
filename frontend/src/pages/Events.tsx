@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGetEvents } from "@/hooks/useGetEvents";
 import { EventCard } from "@/components/EventCard";
 import { Spinner } from "@/components/ui/Spinner";
-import { Input } from "@/components/ui/Input";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Pill } from "@/components/ui/Pill";
-import debounce from "lodash/debounce";
 import {
   ArrowDownNarrowWide,
   ArrowUpNarrowWide,
@@ -28,18 +26,10 @@ const toggleSortDirection = (direction: SortDirection): SortDirection => {
   }
 };
 
-
 export default function Events() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string | undefined>();
   const [dateSortDirection, setDateSortDirection] = useState<SortDirection>();
   const [priceSortDirection, setPriceSortDirection] = useState<SortDirection>();
-
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      setSearchQuery(query);
-    }, 300),
-    []
-  );
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useGetEvents({
@@ -49,10 +39,6 @@ export default function Events() {
     });
 
   const observerTarget = useRef<HTMLDivElement>(null);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedSearch(e.target.value);
-  };
 
   const handleDateSort = () => {
     setDateSortDirection((prev) => toggleSortDirection(prev));
@@ -72,7 +58,7 @@ export default function Events() {
       {
         threshold: 0,
         rootMargin: "100px",
-      }
+      },
     );
 
     const currentTarget = observerTarget.current;
@@ -135,19 +121,21 @@ export default function Events() {
       </div>
       {!hasEvents ? (
         <div className="flex justify-center items-center min-h-[200px] text-2xl text-gray-500">
-          No events found
-          ¯\_(ツ)_/¯
+          No events found ¯\_(ツ)_/¯
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1240px]">
           {data?.pages.map((page) =>
             page.venues.map((event) => (
               <EventCard key={event._id} event={event} />
-            ))
+            )),
           )}
         </div>
       )}
-      <div ref={observerTarget} className="flex justify-center items-center py-8">
+      <div
+        ref={observerTarget}
+        className="flex justify-center items-center py-8"
+      >
         {isFetchingNextPage && <Spinner isLoading />}
       </div>
     </div>

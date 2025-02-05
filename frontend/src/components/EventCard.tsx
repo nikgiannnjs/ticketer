@@ -52,7 +52,7 @@ export function EventCard({ event }: Props) {
 
   return (
     <Link to={`/event/${event._id}`}>
-      <Card className="w-full hover:shadow-lg transition-shadow cursor-pointer relative">
+      <Card className="w-full hover:shadow-lg transition-shadow cursor-pointer relative max-w-[385px]">
         {accessToken && (
           <div
             className="absolute top-2 right-2 flex gap-2 z-10"

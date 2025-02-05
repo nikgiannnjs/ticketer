@@ -19,20 +19,17 @@ export type CreateEventData = {
 export function useCreateEvent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   return useMutation<{ message: string }, Error, CreateEventData>(
     async (eventData) => {
       // Convert local date and time to UTC ISO string
       const localDateTime = new Date(`${eventData.date}T${eventData.time}`);
       const utcDateTime = localDateTime.toISOString();
 
-      const { data } = await axios.post(
-        `/venues/createNewVenue`,
-        {
-          ...eventData,
-          dateTime: utcDateTime, 
-        }
-      );
+      const { data } = await axios.post(`/venues/createNewVenue`, {
+        ...eventData,
+        dateTime: utcDateTime,
+      });
       return data;
     },
     {
@@ -43,9 +40,9 @@ export function useCreateEvent() {
       },
       onError: (error) => {
         toast.error(
-          error.message || "Something went wrong while creating the event"
+          error.message || "Something went wrong while creating the event",
         );
       },
-    }
+    },
   );
-} 
+}

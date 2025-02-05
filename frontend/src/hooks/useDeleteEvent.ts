@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "react-query";
-import {axios} from "@/lib/axios";
+import { axios } from "@/lib/axios";
 
 export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
@@ -10,6 +10,6 @@ export const useDeleteEvent = () => {
       onSuccess: () => {
         queryClient.invalidateQueries("events");
       },
-    }
+    },
   );
-}; 
+};

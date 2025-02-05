@@ -25,7 +25,7 @@ export function useLogin() {
     async (credentials) => {
       const { data } = await axios.post<LoginResponse>(
         "/users/login",
-        credentials
+        credentials,
       );
       return data;
     },
@@ -53,8 +53,8 @@ export function useLogin() {
               toast.error(e.response?.data.message);
               break;
           }
-        } 
+        }
       },
-    }
+    },
   );
 }

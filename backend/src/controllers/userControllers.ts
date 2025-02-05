@@ -6,7 +6,6 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Venue from "@/models/venueModel";
 import { checkRequiredFields } from "@/utils/checkRequiredFields";
 import { dateTimeFormatCheck } from "@/utils/dateTimeformatCheck";
-import { localTimeZone } from "@/utils/localTimeZone";
 import { formatter } from "@/utils/formatter";
 import { Admin } from "@/models/userModel";
 import Ticket from "@/models/ticketModel";
@@ -164,7 +163,7 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
         : -1
       : undefined;
 
-    const formattedQuery = title.replace(/\s+/g, " ").trim().toLowerCase();
+    const formattedQuery = title?.replace(/\s+/g, " ").trim().toLowerCase();
 
     const search = formattedQuery
       ? { title: { $regex: formattedQuery, $options: "i" } }

@@ -12,7 +12,6 @@ export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-
   return useMutation<{ message: string }, Error, UpdateEventData>(
     ({ id, ...data }: UpdateEventData) => {
       const localDateTime = new Date(`${data.date}T${data.time}`);
@@ -29,9 +28,9 @@ export const useUpdateEvent = () => {
       },
       onError: (error) => {
         toast.error(
-          error.message || "Something went wrong while updating the event"
+          error.message || "Something went wrong while updating the event",
         );
       },
-    }
+    },
   );
 };

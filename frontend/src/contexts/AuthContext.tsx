@@ -1,4 +1,10 @@
-import { createContext, useContext, ReactNode, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useEffect,
+} from "react";
 import Cookies from "js-cookie";
 import { LoginResponse } from "@/hooks/useLogin";
 import { jwtDecode } from "jwt-decode";
@@ -25,11 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | undefined>();
-  
+
   useEffect(() => {
     const initializeAuth = () => {
       const token = Cookies.get("accessToken");
-      
+
       if (token) {
         try {
           const expDate = getExpirationDate(token);
@@ -46,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           Cookies.remove("resetToken");
         }
       }
-      
+
       setIsLoading(false);
     };
 
@@ -89,7 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ accessToken, setSession, clearSession, isSuperAdmin, isLoading }}>
+    <AuthContext.Provider
+      value={{ accessToken, setSession, clearSession, isSuperAdmin, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

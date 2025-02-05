@@ -4,7 +4,7 @@ import { Input } from "./Input";
 import { cn } from "@/lib/utils";
 import debounce from "lodash/debounce";
 
-type SearchInputProps =  {
+type SearchInputProps = {
   onClear?: () => void;
   onChange?: (value: string) => void;
   value?: string;
@@ -20,7 +20,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       debounce((query: string) => {
         onChange?.(query);
       }, 300),
-      []
+      [],
     );
 
     React.useEffect(() => {
@@ -63,7 +63,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 SearchInput.displayName = "SearchInput";
