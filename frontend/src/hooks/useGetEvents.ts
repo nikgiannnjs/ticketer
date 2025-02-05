@@ -20,14 +20,25 @@ type EventsResponse = {
   totalPages: number;
 };
 
-export function useGetEvents(limit: number = 10) {
+type GetEventsParams = {
+  page?: number;
+  limit?: number;
+  titleQuery?: string;
+  dateSort?: "asc" | "desc" | null;
+  priceSort?: "asc" | "desc" | null;
+};
+
+export function useGetEvents(params?: GetEventsParams) {
   return useInfiniteQuery<EventsResponse>(
-    "events",
-    async ({ pageParam = 1 }) => {
+    ["events", params],
+    async ({ pageParam = params?.page ?? 1 }) => {
       const { data } = await axios.get<EventsResponse>("/venues/getAllVenues", {
         params: {
           page: pageParam,
-          limit,
+          limit: params?.limit ?? 10,
+          title: params?.titleQuery,
+          sortDate: params?.dateSort,
+          sortPrice: params?.priceSort,
         },
       });
       return data;
@@ -39,6 +50,7 @@ export function useGetEvents(limit: number = 10) {
         }
         return undefined;
       },
-    }
+      keepPreviousData: true,
+    },
   );
 } 
