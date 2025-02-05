@@ -49,9 +49,9 @@ export function Header() {
                 <NavItem to="/access-requests">Access Requests</NavItem>
               )}
               {!!accessToken ? (
-                <Button 
-                  variant="ghost" 
-                  className="gap-1" 
+                <Button
+                  variant="ghost"
+                  className="gap-1"
                   onClick={() => logout()}
                   isLoading={isLoading}
                 >

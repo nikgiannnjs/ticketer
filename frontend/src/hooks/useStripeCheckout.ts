@@ -13,7 +13,7 @@ export function useStripeCheckout() {
   return useMutation<void, Error, StripeCheckoutData>(
     async ({ eventId, email, ticketAmount }) => {
       const stripe = await loadStripe(
-        import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+        import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
       );
       if (!stripe) throw new Error("Failed to load Stripe");
 
@@ -36,6 +36,6 @@ export function useStripeCheckout() {
       onError: (error) => {
         toast.error(error.message || "Failed to purchase tickets");
       },
-    }
+    },
   );
 }

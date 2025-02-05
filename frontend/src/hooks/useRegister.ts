@@ -21,7 +21,7 @@ export function useRegister() {
     async (credentials) => {
       const { data } = await axios.post<LoginResponse>(
         "/users/adminRegister",
-        credentials
+        credentials,
       );
       return data;
     },
@@ -36,6 +36,6 @@ export function useRegister() {
           toast.error(e.response?.data.message || "Registration failed");
         }
       },
-    }
+    },
   );
-} 
+}

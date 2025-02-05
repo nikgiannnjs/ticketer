@@ -15,9 +15,10 @@ export function useGetAccessRequests() {
     "accessRequests",
     async () => {
       const { data } = await axios.get<AccessRequestsResponse>(
-        "/users/getAccessRequests"
+        "/users/getAccessRequests",
       );
 
-    return data.accessRequests;
-  });
+      return data.accessRequests;
+    },
+  );
 }

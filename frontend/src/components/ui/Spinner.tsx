@@ -12,12 +12,7 @@ export const Spinner = ({ isLoading, className }: Props) => {
   }
 
   return (
-    <div
-      className={cn(
-        "flex items-center justify-center",
-        className
-      )}
-    >
+    <div className={cn("flex items-center justify-center", className)}>
       <LoaderCircle className="animate-spin text-white" />
     </div>
   );

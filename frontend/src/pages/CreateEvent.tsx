@@ -174,7 +174,7 @@ export default function CreateEvent() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -192,7 +192,7 @@ export default function CreateEvent() {
           hour12: false,
           hour: "2-digit",
           minute: "2-digit",
-        }
+        },
       );
 
       const imageUrl = eventData.image

@@ -8,8 +8,10 @@ import { Check, X } from "lucide-react";
 
 export default function AccessRequests() {
   const { data: requests, isLoading, refetch } = useGetAccessRequests();
-  const { mutate: acceptRequest, isLoading: isAccepting } = useAcceptAccessRequest();
-  const { mutate: rejectRequest, isLoading: isRejecting } = useRejectAccessRequest();
+  const { mutate: acceptRequest, isLoading: isAccepting } =
+    useAcceptAccessRequest();
+  const { mutate: rejectRequest, isLoading: isRejecting } =
+    useRejectAccessRequest();
 
   const handleAccept = (email: string) => {
     acceptRequest(email, {
@@ -79,4 +81,4 @@ export default function AccessRequests() {
       )}
     </div>
   );
-} 
+}

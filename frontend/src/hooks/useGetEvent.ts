@@ -7,11 +7,13 @@ export function useGetEvent(id?: string) {
     ["event", id],
     async () => {
       if (!id) throw new Error("Event ID is required");
-      const { data } = await axios.get<{ venue: Event }>(`/venues/getVenue/${id}`);
+      const { data } = await axios.get<{ venue: Event }>(
+        `/venues/getVenue/${id}`,
+      );
       return data.venue;
     },
     {
       enabled: !!id,
-    }
+    },
   );
-} 
+}

@@ -19,9 +19,11 @@ export function useRequestAccess() {
       },
       onError: (e) => {
         if (isAxiosError(e)) {
-          toast.error(e.response?.data.message || "Failed to submit access request");
+          toast.error(
+            e.response?.data.message || "Failed to submit access request",
+          );
         }
       },
-    }
+    },
   );
-} 
+}

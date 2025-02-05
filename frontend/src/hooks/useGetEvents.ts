@@ -53,4 +53,4 @@ export function useGetEvents(params?: GetEventsParams) {
       keepPreviousData: true,
     },
   );
-} 
+}

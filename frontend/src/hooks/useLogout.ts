@@ -22,6 +22,6 @@ export function useLogout() {
       onError: () => {
         toast.error("Failed to logout");
       },
-    }
+    },
   );
 }
