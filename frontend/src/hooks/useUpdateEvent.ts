@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "react-query";
 import { axios } from "@/lib/axios";
 import { CreateEventData } from "./useCreateEvent";
+import { useNavigate } from "react-router";
+import { toast } from "react-hot-toast";
 
 type UpdateEventData = CreateEventData & {
   id: string;
@@ -8,8 +10,10 @@ type UpdateEventData = CreateEventData & {
 
 export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  return useMutation(
+
+  return useMutation<{ message: string }, Error, UpdateEventData>(
     ({ id, ...data }: UpdateEventData) => {
       const localDateTime = new Date(`${data.date}T${data.time}`);
       const utcDateTime = localDateTime.toISOString();
@@ -19,7 +23,14 @@ export const useUpdateEvent = () => {
     },
     {
       onSuccess: () => {
+        toast.success("Event updated successfully!");
         queryClient.invalidateQueries("events");
+        navigate("/events");
+      },
+      onError: (error) => {
+        toast.error(
+          error.message || "Something went wrong while updating the event"
+        );
       },
     }
   );

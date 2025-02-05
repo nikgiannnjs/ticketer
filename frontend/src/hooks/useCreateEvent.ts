@@ -1,6 +1,7 @@
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { axios } from "@/lib/axios";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 export type CreateEventData = {
   title: string;
@@ -16,6 +17,9 @@ export type CreateEventData = {
 };
 
 export function useCreateEvent() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
   return useMutation<{ message: string }, Error, CreateEventData>(
     async (eventData) => {
       // Convert local date and time to UTC ISO string
@@ -34,6 +38,8 @@ export function useCreateEvent() {
     {
       onSuccess: () => {
         toast.success("Event created successfully!");
+        queryClient.invalidateQueries("events");
+        navigate("/events");
       },
       onError: (error) => {
         toast.error(

@@ -84,8 +84,7 @@ const FormField = (props: FormFieldProps) => {
 
 export default function CreateEvent() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { data: eventData, isLoading: isEventLoading } = useGetEvent(id);
+  const { data: eventData} = useGetEvent(id);
   const isEditMode = !!id;
 
   const createEvent = useCreateEvent();
