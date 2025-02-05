@@ -11,7 +11,6 @@ import { formatter } from "@/utils/formatter";
 import { Admin } from "@/models/userModel";
 import { s3Client } from "@/db/s3Client";
 import dotenv from "dotenv";
-import { title } from "process";
 dotenv.config();
 
 export const createNewVenue = async (
@@ -150,7 +149,18 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
     const limit = Number(req.query.limit) ?? 10;
 
     const title = req.query.title as string;
-    const sort = req.query.sort === "desc" ? 1 : -1;
+
+    const sortByPrice = req.query.sortPrice
+      ? req.query.sortPrice === "desc"
+        ? 1
+        : -1
+      : undefined;
+
+    const sortByDate = req.query.sortDate
+      ? req.query.sortDate === "desc"
+        ? 1
+        : -1
+      : undefined;
 
     const formattedQuery = title.replace(/\s+/g, " ").trim().toLowerCase();
 
@@ -161,7 +171,8 @@ export const allVenues = async (req: Request, res: Response): Promise<void> => {
     const offset = (page - 1) * limit;
 
     const allVenues = await Venue.find(search)
-      .sort({ createdAt: sort })
+      .sort(sortByDate ? { datetime: sortByDate } : undefined)
+      .sort(sortByPrice ? { price: sortByPrice } : undefined)
       .skip(offset)
       .limit(limit)
       .exec();
