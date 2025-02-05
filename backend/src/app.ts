@@ -6,12 +6,10 @@ import venueRoutes from "./routes/venueRoutes";
 
 const app = express();
 
-// Handle raw body for webhook
-app.use('/tickets/webhook/payment', express.raw({ type: 'application/json' }));
+app.use("/tickets/webhook/payment", express.raw({ type: "application/json" }));
 
-// Use JSON parser for all other routes
 app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.originalUrl !== '/tickets/webhook/payment') {
+  if (req.originalUrl !== "/tickets/webhook/payment") {
     express.json()(req, res, next);
   } else {
     next();

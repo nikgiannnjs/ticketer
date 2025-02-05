@@ -9,7 +9,9 @@ import { dateTimeFormatCheck } from "@/utils/dateTimeformatCheck";
 import { localTimeZone } from "@/utils/localTimeZone";
 import { formatter } from "@/utils/formatter";
 import { Admin } from "@/models/userModel";
+import Ticket from "@/models/ticketModel";
 import { s3Client } from "@/db/s3Client";
+import { Types } from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -290,6 +292,8 @@ export const deleteVenue = async (
       });
       return;
     }
+
+    await Ticket.deleteMany({ venue: new Types.ObjectId(id) });
 
     res.status(200).json({
       message: "Venue deleted succesfully.",
