@@ -96,7 +96,7 @@ export const adminUserRegister = async (
     const user = await Admin.findOne({ email });
 
     if (!user) {
-      res.status(400).json({
+      res.status(404).json({
         message: "User not found.",
       });
 
@@ -104,7 +104,7 @@ export const adminUserRegister = async (
     }
 
     if (user.status !== "active") {
-      res.status(400).json({
+      res.status(403).json({
         message: "Access denied.",
       });
 
@@ -146,7 +146,6 @@ export const adminUserRegister = async (
       }
     );
 
-    // Generate tokens after successful registration
     const accessToken = jwt.sign(
       { email, isSuperAdmin: status === "super-admin" },
       process.env.JWT_SECRET as string,
@@ -154,13 +153,9 @@ export const adminUserRegister = async (
         expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
       }
     );
-    const refreshToken = jwt.sign(
-      { email },
-      process.env.JWT_SECRET as string,
-      {
-        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
-      }
-    );
+    const refreshToken = jwt.sign({ email }, process.env.JWT_SECRET as string, {
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
+    });
 
     res.status(201).json({
       message: "New Admin registered successfully.",
@@ -211,9 +206,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const accessToken = jwt.sign({ email , isSuperAdmin: user.status === "super-admin" }, process.env.JWT_SECRET as string, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
-    });
+    const accessToken = jwt.sign(
+      { email, isSuperAdmin: user.status === "super-admin" },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
+      }
+    );
     const refreshToken = jwt.sign({ email }, process.env.JWT_SECRET as string, {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
     });
@@ -260,8 +259,7 @@ export const requestAccess = async (
 
     if (!validEmail) {
       res.status(400).json({
-        message:
-          "Invalid email format. Email has to be in the format of test@gmail.com",
+        message: "Invalid email format.",
       });
 
       return;
@@ -287,7 +285,7 @@ export const getAccessRequests = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
-  const accessRequests = await Admin.find({ status: "requested" }) ?? [];
+  const accessRequests = (await Admin.find({ status: "requested" })) ?? [];
   res.status(200).json({ accessRequests });
 };
 
@@ -318,7 +316,7 @@ export const acceptRequest = async (
     const user = await Admin.findOne({ email });
 
     if (!user) {
-      res.status(400).json({
+      res.status(404).json({
         message: "User not found.",
       });
 
