@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/Label";
 import { uploadImage } from "@/hooks/useImageUpload";
 import { toast } from "react-hot-toast";
 import { Textarea } from "@/components/ui/TextArea";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { useGetEvent } from "@/hooks/useGetEvent";
 import { useUpdateEvent } from "@/hooks/useUpdateEvent";
 
@@ -84,7 +84,7 @@ const FormField = (props: FormFieldProps) => {
 
 export default function CreateEvent() {
   const { id } = useParams();
-  const { data: eventData} = useGetEvent(id);
+  const { data: eventData } = useGetEvent(id);
   const isEditMode = !!id;
 
   const createEvent = useCreateEvent();
@@ -185,11 +185,15 @@ export default function CreateEvent() {
 
   useEffect(() => {
     if (isEditMode && eventData) {
-      const dateOnly = new Date(eventData.datetime).toLocaleDateString("en-CA"); // we need it to be in the format of YYYY-MM-DD and this locale does that
-      const timeOnly = new Date(eventData.datetime).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      const dateOnly = new Date(eventData.datetime).toLocaleDateString("en-CA");
+      const timeOnly = new Date(eventData.datetime).toLocaleTimeString(
+        "en-US",
+        {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
 
       const imageUrl = eventData.image
         ? `${import.meta.env.VITE_R2_DEV_SUBDOMAIN}${eventData.image}`
