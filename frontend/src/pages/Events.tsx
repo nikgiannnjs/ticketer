@@ -62,7 +62,6 @@ export default function Events() {
     setPriceSortDirection((prev) => toggleSortDirection(prev));
   };
 
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -101,6 +100,8 @@ export default function Events() {
   const PriceIcon =
     priceSortDirection === "asc" ? ArrowUpNarrowWide : ArrowDownNarrowWide;
 
+  const hasEvents = data?.pages.some((page) => page.venues.length > 0);
+
   return (
     <div className="w-full max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">Events</h1>
@@ -132,17 +133,21 @@ export default function Events() {
           </Pill>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data?.pages.map((page) =>
-          page.venues.map((event) => (
-            <EventCard key={event._id} event={event} />
-          ))
-        )}
-      </div>
-      <div
-        ref={observerTarget}
-        className="flex justify-center items-center py-8"
-      >
+      {!hasEvents ? (
+        <div className="flex justify-center items-center min-h-[200px] text-2xl text-gray-500">
+          No events found
+          ¯\_(ツ)_/¯
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {data?.pages.map((page) =>
+            page.venues.map((event) => (
+              <EventCard key={event._id} event={event} />
+            ))
+          )}
+        </div>
+      )}
+      <div ref={observerTarget} className="flex justify-center items-center py-8">
         {isFetchingNextPage && <Spinner isLoading />}
       </div>
     </div>
