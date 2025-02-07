@@ -6,9 +6,7 @@
   "scripts": {
     "start": "nodemon -w src --exec tsx src/index.ts",
     "build": "npm install && tsc",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage"
+    "test": "vitest"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.731.1",
