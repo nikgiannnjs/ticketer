@@ -5,8 +5,10 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "nodemon -w src --exec tsx src/index.ts",
-    "dev": "nodemon src/index.ts",
-    "build": "npm install && tsc"
+    "build": "npm install && tsc",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.731.1",
@@ -35,6 +37,10 @@
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "supertest": "^6.3.4",
+    "vitest": "^1.4.0",
+    "@types/supertest": "^6.0.2",
+    "mongodb-memory-server": "^9.1.7"
   }
 }
