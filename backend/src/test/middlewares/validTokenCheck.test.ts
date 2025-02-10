@@ -8,9 +8,9 @@ process.env.JWT_SECRET = "test";
 const secret = process.env.JWT_SECRET;
 
 describe("validTokenCheck", async () => {
-  describe("POST /users/logout", async () => {
+  describe("POST /test-auth", async () => {
     it("should return 400 if no token provided", async () => {
-      const res = await request(app).post("/users/logout");
+      const res = await request(app).post("/users/test-auth");
 
       expect(res.status).toBe(400);
       expect(res.body.message).toBe("No token provided.");
@@ -18,7 +18,7 @@ describe("validTokenCheck", async () => {
 
     it("should return 400 for invalid token", async () => {
       const res = await request(app)
-        .post("/users/logout")
+        .post("/users/test-auth")
         .set("Authorization", `Bearer invalidToken `);
 
       expect(res.status).toBe(400);
@@ -33,11 +33,11 @@ describe("validTokenCheck", async () => {
       console.log(token);
 
       const res = await request(app)
-        .post("/users/logout")
+        .post("/users/test-auth")
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.message).toBe("Logout successfull.");
+      expect(res.body.message).toBe("Middleware passed.");
     });
   });
 });

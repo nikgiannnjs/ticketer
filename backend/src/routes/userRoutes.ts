@@ -18,9 +18,17 @@ router.post("/guestRegister", guestUserRegister);
 router.post("/adminRegister", adminUserRegister);
 router.post("/login", login);
 router.post("/requestAccess", requestAccess);
-router.get("/getAccessRequests", validTokenCheck, superAdminCheck, getAccessRequests);
+router.get(
+  "/getAccessRequests",
+  validTokenCheck,
+  superAdminCheck,
+  getAccessRequests
+);
 router.post("/rejectRequest", validTokenCheck, superAdminCheck, rejectRequest);
 router.post("/acceptRequest", validTokenCheck, superAdminCheck, acceptRequest);
-
+router.post("/test-auth", validTokenCheck, (req, res) => {
+  res.status(200).json({ message: "Middleware passed." });
+});
 router.post("/logout", validTokenCheck, logout);
+
 export default router;
