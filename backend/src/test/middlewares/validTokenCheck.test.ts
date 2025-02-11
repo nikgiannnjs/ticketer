@@ -4,13 +4,12 @@ import jwt from "jsonwebtoken";
 import app from "@/app";
 
 process.env.JWT_SECRET = "test";
-
 const secret = process.env.JWT_SECRET;
 
 describe("validTokenCheck", async () => {
   describe("POST /test-auth", async () => {
     it("should return 400 if no token provided", async () => {
-      const res = await request(app).post("/users/test-auth");
+      const res = await request(app).post("/users/test-token");
 
       expect(res.status).toBe(400);
       expect(res.body.message).toBe("No token provided.");
@@ -18,7 +17,7 @@ describe("validTokenCheck", async () => {
 
     it("should return 400 for invalid token", async () => {
       const res = await request(app)
-        .post("/users/test-auth")
+        .post("/users/test-token")
         .set("Authorization", `Bearer invalidToken `);
 
       expect(res.status).toBe(400);
@@ -33,7 +32,7 @@ describe("validTokenCheck", async () => {
       console.log(token);
 
       const res = await request(app)
-        .post("/users/test-auth")
+        .post("/users/test-token")
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).toBe(200);

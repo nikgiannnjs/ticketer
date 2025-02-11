@@ -26,9 +26,13 @@ router.get(
 );
 router.post("/rejectRequest", validTokenCheck, superAdminCheck, rejectRequest);
 router.post("/acceptRequest", validTokenCheck, superAdminCheck, acceptRequest);
-router.post("/test-auth", validTokenCheck, (req, res) => {
+router.post("/logout", validTokenCheck, logout);
+
+router.post("/test-token", validTokenCheck, (req, res) => {
   res.status(200).json({ message: "Middleware passed." });
 });
-router.post("/logout", validTokenCheck, logout);
+router.post("/test-admin", superAdminCheck, (req, res) => {
+  res.status(200).json({ message: "Middleware passed." });
+});
 
 export default router;
