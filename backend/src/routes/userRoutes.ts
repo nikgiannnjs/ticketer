@@ -10,7 +10,6 @@ import {
   getAccessRequests,
   rejectRequest,
 } from "@/controllers/authControllers";
-import { adminCheck } from "@/middleware/adminAccessOnly";
 import { superAdminCheck } from "@/middleware/superAdminAccessOnly";
 import { validTokenCheck } from "@/middleware/validTokenCheck";
 
@@ -27,12 +26,5 @@ router.get(
 router.post("/rejectRequest", validTokenCheck, superAdminCheck, rejectRequest);
 router.post("/acceptRequest", validTokenCheck, superAdminCheck, acceptRequest);
 router.post("/logout", validTokenCheck, logout);
-
-router.post("/test-token", validTokenCheck, (req, res) => {
-  res.status(200).json({ message: "Middleware passed." });
-});
-router.post("/test-admin", superAdminCheck, (req, res) => {
-  res.status(200).json({ message: "Middleware passed." });
-});
 
 export default router;
