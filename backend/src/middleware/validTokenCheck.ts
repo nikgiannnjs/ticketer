@@ -25,7 +25,7 @@ export const validTokenCheck = async (
       const tokenCheck = jwt.verify(token, process.env.JWT_SECRET as string);
       next();
     } catch (error) {
-      if (error instanceof jwt.JsonWebTokenError) {
+      if (error) {
         res.status(400).json({
           message: "Invalid token.",
         });
